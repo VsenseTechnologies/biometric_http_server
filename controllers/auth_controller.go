@@ -14,7 +14,7 @@ type AuthController struct{
 	AuthRepository models.AuthRepository
 }
 
-func NewAdminController(ar models.AuthRepository) *AuthController { 
+func NewAuthController(ar models.AuthRepository) *AuthController { 
 	return &AuthController{
 		AuthRepository: ar,
 	}

@@ -18,7 +18,7 @@ type Auth struct{
 	mut *sync.Mutex
 }
 
-func NewAdminAuth(db *sql.DB , mut *sync.Mutex) *Auth {
+func NewAuth(db *sql.DB , mut *sync.Mutex) *Auth {
 	return &Auth{
 		db,
 		mut,
