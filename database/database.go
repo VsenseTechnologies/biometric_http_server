@@ -14,7 +14,7 @@ type DatabaseConnection struct{
 }
 
 func (dc *DatabaseConnection) ConnectToDatabase() (*sql.DB , error){
-	db , err := sql.Open("postgres", "user="+dc.Username+" "+"password="+dc.Password+" "+"dbname="+dc.DatabaseName+" "+"sslmode="+dc.SSLMode)
+	db , err := sql.Open("postgres", "postgresql://fingerprint_user:VAYbmJfOZYyJDBDKL1U7BRxv6OoqRR1h@dpg-cr4r595umphs73drro10-a/fingerprint")
 	if err != nil {
 		return nil , err
 	}
