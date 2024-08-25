@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"vsensetech.in/go_fingerprint_server/models"
 	"vsensetech.in/go_fingerprint_server/payload"
@@ -36,12 +37,11 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			SameSite: http.SameSiteNoneMode, // Adjust based on your use case
 			Secure:   true,
 			Partitioned: true,// Set to true if using HTTPS
-			MaxAge: 3600,
-			Domain: "https://go-fingerprint.onrender.com",
+			Expires: time.Now().Add(24 * 365 * time.Hour).UTC(),
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(payload.SimepleSuccessPayload{Message: "Success"})
+		json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
 	} else {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(payload.SuccessPayloadWithData{Message: "Success", Data: token})
@@ -66,12 +66,11 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			SameSite: http.SameSiteNoneMode, // Adjust based on your use case
 			Secure:   true, // Set to true if using HTTPS
 			Partitioned: true,
-			MaxAge: 3600,
-			Domain: "https://go-fingerprint.onrender.com",
+			Expires: time.Now().Add(24 * 365 * time.Hour).UTC(),
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(payload.SimepleSuccessPayload{Message: "Success"})
+		json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
 		return
 	} else {
 		w.WriteHeader(http.StatusOK)

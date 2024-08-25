@@ -45,5 +45,5 @@ func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(payload.SimepleSuccessPayload{Message: "Success"})
+	json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
 }

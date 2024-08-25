@@ -1,6 +1,6 @@
 package payload
 
-type SimepleSuccessPayload struct{
+type SimpleSuccessPayload struct{
 	Message string `json:"message"`
 }
 

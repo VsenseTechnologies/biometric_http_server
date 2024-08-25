@@ -10,7 +10,7 @@ import (
 )
 
 
-func AdminAuthRouter(db *sql.DB , mut *sync.Mutex , router *mux.Router){
+func AuthRouter(db *sql.DB , mut *sync.Mutex , router *mux.Router){
 	repo := repository.NewAuth(db, mut)
 	cont := controllers.NewAuthController(repo)
 	
