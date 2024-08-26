@@ -21,8 +21,12 @@ func NewUserMachineRepo(db *sql.DB, mut *sync.Mutex) *UserMachineRepo {
 	}
 }
 
-func (umr *UserMachineRepo) FetchAllMachines() ([]models.UserMachines, error) {
-	res, err := umr.db.Query("SELECT unit_id , online FROM biometric")
+func (umr *UserMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.UserMachines, error) {
+	var user models.Users
+	if err := json.NewDecoder(*reader).Decode(&user); err != nil {
+		return nil, err
+	}
+	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", user.UserID)
 	if err != nil {
 		return nil, err
 	}
