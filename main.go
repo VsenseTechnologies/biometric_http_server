@@ -39,6 +39,7 @@ func main(){
 	
 	//Routes
 	router.Use(middlewares.RouteMiddleware)
+	router.Use(middlewares.JwtMiddleware)
 	routers.AuthRouter(db , mut, router)
 	routers.InitRouter(db, router)
 	routers.AdminRouters(db, mut, router)
