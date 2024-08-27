@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"vsensetech.in/go_fingerprint_server/models"
 	"vsensetech.in/go_fingerprint_server/payload"
@@ -34,6 +35,9 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Partitioned: true,
 			Secure: true,
 			SameSite: http.SameSiteNoneMode,
+			Path: "/",
+			Expires: time.Now().Add(24 * 365 * time.Hour),
+			HttpOnly: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -58,8 +62,11 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Name:  "token",
 			Value: token,
 			Partitioned: true,
+			Expires: time.Now().Add(24 * 365 * time.Hour),
 			Secure: true,
 			SameSite: http.SameSiteNoneMode,
+			Path: "/",
+			HttpOnly: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
