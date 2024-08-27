@@ -2,9 +2,11 @@ package middlewares
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
 	"vsensetech.in/go_fingerprint_server/payload"
 )
 
@@ -22,5 +24,42 @@ func RouteMiddleware(authHandler http.Handler) http.Handler {
 		}
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: "Invalid Route"})
+	})
+}
+
+func JwtMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var jwtSecretKey = []byte("vsense")
+		// Bypass the middleware for login and register routes
+		if strings.HasPrefix(r.URL.Path, "/login") || strings.HasPrefix(r.URL.Path, "/register") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Get JWT token from cookies
+		cookie, err := r.Cookie("token")
+		if err != nil {
+			http.Error(w, "Unauthorized - no token provided", http.StatusUnauthorized)
+			return
+		}
+
+		tokenString := cookie.Value
+
+		// Parse and validate the token
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			// Check the signing method
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return jwtSecretKey, nil
+		})
+
+		if err != nil || !token.Valid {
+			http.Error(w, "Unauthorized - invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		// If token is valid, proceed to the next handler
+		next.ServeHTTP(w, r)
 	})
 }

@@ -58,6 +58,11 @@ func (umr *UserMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 	if err := json.NewDecoder(*reader).Decode(&machine); err != nil {
 		return err
 	}
+	query := fmt.Sprintf("DROP TABLE %s", machine.UnitID)
+
+	if _, err := umr.db.Exec(query); err != nil {
+    	return err
+	}
 	if _, err := umr.db.Exec("DELETE FROM biometric WHERE unit_id=$1", machine.UnitID); err != nil {
 		return err
 	}
