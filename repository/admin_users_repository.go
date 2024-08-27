@@ -20,7 +20,8 @@ func NewUsersRepo(db *sql.DB , mut *sync.Mutex) *UsersRepo{
 }
 
 func(ur *UsersRepo) FetchAllUsers() ([]models.Users , error) {
-	
+	ur.mut.Lock()
+	defer ur.mut.Unlock()
 	res , err := ur.db.Query("SELECT username , user_id FROM users")
 	if err != nil {
 		return nil , err

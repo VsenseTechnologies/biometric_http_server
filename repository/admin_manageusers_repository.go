@@ -25,6 +25,8 @@ func NewManageUserRepo(db *sql.DB , mut *sync.Mutex) *ManageUserRepo {
 }
 
 func(mur *ManageUserRepo) GiveUserAccess(reader *io.ReadCloser) error {
+	mur.mut.Lock()
+	defer mur.mut.Unlock()
 	var newUser models.ManageUsers
 	var password string
 	if err := json.NewDecoder(*reader).Decode(&newUser); err != nil {

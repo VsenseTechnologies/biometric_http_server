@@ -22,6 +22,8 @@ func NewUserMachineRepo(db *sql.DB, mut *sync.Mutex) *UserMachineRepo {
 }
 
 func (umr *UserMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.UserMachines, error) {
+	umr.mut.Lock()
+	defer umr.mut.Unlock()
 	var user models.Users
 	if err := json.NewDecoder(*reader).Decode(&user); err != nil {
 		return nil, err
@@ -49,6 +51,8 @@ func (umr *UserMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.Us
 }
 
 func (umr *UserMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
+	umr.mut.Lock()
+	defer umr.mut.Unlock()
 	var machine models.UserMachines
 	if err := json.NewDecoder(*reader).Decode(&machine); err != nil {
 		return err
@@ -60,11 +64,14 @@ func (umr *UserMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 }
 
 func (umr *UserMachineRepo) AddMachine(reader *io.ReadCloser) error {
+	umr.mut.Lock()
+	defer umr.mut.Unlock()
 	var newMachine models.UserNewMachine
 
 	if err := json.NewDecoder(*reader).Decode(&newMachine); err != nil {
 		return nil
 	}
+
 	if _, err := umr.db.Exec("INSERT INTO biometric(user_id , unit_id , online) VALUES($1 , $2 , $3)", newMachine.UserID, newMachine.UnitID, false); err != nil {
 		return nil
 	}

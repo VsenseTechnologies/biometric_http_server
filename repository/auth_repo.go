@@ -26,6 +26,8 @@ func NewAuth(db *sql.DB , mut *sync.Mutex) *Auth {
 }
 
 func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) {
+	a.mut.Lock()
+	defer a.mut.Unlock()
 	//Creating a new variable of type AdminAuthDetails
 	var newUser models.AuthDetails
 	
@@ -62,6 +64,8 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 }
 
 func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
+	a.mut.Lock()
+	defer a.mut.Unlock()
 	//Creating a new variable of type AdminAuthDetails
 	var userIns models.AuthDetails
 	var dbUser models.AuthDetails
