@@ -68,12 +68,13 @@ func (umr *UserMachineRepo) AddMachine(reader *io.ReadCloser) error {
 	defer umr.mut.Unlock()
 	var newMachine models.UserNewMachine
 
-	if _ , err := umr.db.Exec("CREATE TABLE $1(student_id VARCHAR(100) PRIMARY KEY , name VARCHAR(50) NOT NULL, usn VARCHAR(20) NOT NULL , department VARCHAR(20) NOT NULL)" , newMachine.UnitID); err != nil {
-		return err
-	}
-
 	if err := json.NewDecoder(*reader).Decode(&newMachine); err != nil {
 		return nil
+	}
+
+
+	if _ , err := umr.db.Exec("CREATE TABLE $1 (student_id VARCHAR(100) PRIMARY KEY , name VARCHAR(50) NOT NULL, usn VARCHAR(20) NOT NULL , department VARCHAR(20) NOT NULL)" , newMachine.UnitID); err != nil {
+		return err
 	}
 
 	if _, err := umr.db.Exec("INSERT INTO biometric(user_id , unit_id , online) VALUES($1 , $2 , $3)", newMachine.UserID, newMachine.UnitID, false); err != nil {
