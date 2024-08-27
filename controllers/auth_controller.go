@@ -31,6 +31,9 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 		cookie := http.Cookie{
 			Name:  "token",
 			Value: token,
+			Partitioned: true,
+			Secure: true,
+			SameSite: http.SameSiteNoneMode,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -54,6 +57,9 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 		cookie := http.Cookie{
 			Name:  "token",
 			Value: token,
+			Partitioned: true,
+			Secure: true,
+			SameSite: http.SameSiteNoneMode,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
