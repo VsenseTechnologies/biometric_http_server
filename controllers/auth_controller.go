@@ -29,13 +29,14 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 	}
 	if urlPath == "admin" {
 		cookie := http.Cookie{
-			Name:  "token",
-			Value: token,
-			Secure: true,
-			SameSite: http.SameSiteNoneMode,
-			Path: "/",
-			HttpOnly: true,
-			MaxAge: 3600,
+			Name:        "token",
+			Value:       token,
+			Secure:      true,
+			SameSite:    http.SameSiteNoneMode,
+			Path:        "/",
+			HttpOnly:    true,
+			MaxAge:      3600,
+			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -57,13 +58,14 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 	}
 	if urlPath == "admin" {
 		cookie := http.Cookie{
-			Name:  "token",
-			Value: token,
-			MaxAge: 3600,
-			Secure: true,
-			SameSite: http.SameSiteNoneMode,
-			Path: "/",
-			HttpOnly: true,
+			Name:        "token",
+			Value:       token,
+			MaxAge:      3600,
+			Secure:      true,
+			SameSite:    http.SameSiteNoneMode,
+			Path:        "/",
+			HttpOnly:    true,
+			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
