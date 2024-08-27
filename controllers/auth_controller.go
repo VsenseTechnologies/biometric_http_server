@@ -36,8 +36,8 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Secure: true,
 			SameSite: http.SameSiteNoneMode,
 			Path: "/",
-			Expires: time.Now().Add(24 * 365 * time.Hour),
 			HttpOnly: true,
+			MaxAge: 3600,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -62,7 +62,7 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Name:  "token",
 			Value: token,
 			Partitioned: true,
-			Expires: time.Now().Add(24 * 365 * time.Hour),
+			MaxAge: 3600,
 			Secure: true,
 			SameSite: http.SameSiteNoneMode,
 			Path: "/",
