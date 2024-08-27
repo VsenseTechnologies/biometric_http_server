@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"sync"
 
@@ -73,9 +74,12 @@ func (umr *UserMachineRepo) AddMachine(reader *io.ReadCloser) error {
 	}
 
 
-	if _ , err := umr.db.Exec("CREATE TABLE $1 (student_id VARCHAR(100) PRIMARY KEY , name VARCHAR(50) NOT NULL, usn VARCHAR(20) NOT NULL , department VARCHAR(20) NOT NULL)" , newMachine.UnitID); err != nil {
-		return err
+	query := fmt.Sprintf("CREATE TABLE %s (student_id VARCHAR(100) PRIMARY KEY, name VARCHAR(50) NOT NULL, usn VARCHAR(20) NOT NULL, department VARCHAR(20) NOT NULL)", newMachine.UnitID)
+
+	if _, err := umr.db.Exec(query); err != nil {
+    	return err
 	}
+
 
 	if _, err := umr.db.Exec("INSERT INTO biometric(user_id , unit_id , online) VALUES($1 , $2 , $3)", newMachine.UserID, newMachine.UnitID, false); err != nil {
 		return nil
