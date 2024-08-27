@@ -34,12 +34,12 @@ func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
-	if _ , err := i.db.Exec("CREATE TABLE fingerprintdata(user_id VARCHAR(100), unit_id VARCHAR(50) PRIMARY KEY , online BOOLEAN NOT NULL, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE, FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE)"); err != nil {
+	if _ , err := i.db.Exec("CREATE TABLE fingerprintdata(student_id VARCHAR(100) NOT NULL, unit_id VARCHAR(50) PRIMARY KEY , online BOOLEAN NOT NULL, FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE)"); err != nil {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
-	if _ , err := i.db.Exec("CREATE TABLE attendence(user_id VARCHAR(100), unit_id VARCHAR(50), login TIMESTAMP DEFAULT CURRENT_TIMESTAMP, logout TIMESTAMP, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE, FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE)"); err != nil {
+	if _ , err := i.db.Exec("CREATE TABLE attendence(student_id VARCHAR(100) NOT NULL, unit_id VARCHAR(50), date VARCHAR(20), login VARCHAR(20), logout VARCHAR(20), FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE)"); err != nil {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
