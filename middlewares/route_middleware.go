@@ -13,10 +13,10 @@ import (
 func RouteMiddleware(authHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Set to your frontend's origin
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Set to your frontend's origin
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
+		fmt.Println("ii")
 		var url = strings.Split(r.URL.Path, "/")[1]
 		if url == "admin" || url == "users" {
 			authHandler.ServeHTTP(w, r)
@@ -30,6 +30,7 @@ func RouteMiddleware(authHandler http.Handler) http.Handler {
 func JwtMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var jwtSecretKey = []byte("vsense")
+		fmt.Println(r.URL.Path)
 		// Bypass the middleware for login and register routes
 		if strings.HasPrefix(r.URL.Path, "/login") || strings.HasPrefix(r.URL.Path, "/register") {
 			next.ServeHTTP(w, r)
@@ -44,6 +45,7 @@ func JwtMiddleware(next http.Handler) http.Handler {
 		}
 
 		tokenString := cookie.Value
+		fmt.Println(tokenString)
 
 		// Parse and validate the token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
