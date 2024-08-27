@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-	"time"
 
 	"vsensetech.in/go_fingerprint_server/models"
 	"vsensetech.in/go_fingerprint_server/payload"
