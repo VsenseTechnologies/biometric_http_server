@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -33,18 +34,18 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 	
 	//Decoding the json from reader to the newly created variale
 	if err := json.NewDecoder(*reader).Decode(&newUser); err != nil {
-		return "",err
+		return "",fmt.Errorf("please enter valid details")
 	}
 	
 	//Hashing the password
 	hashpass , err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return "",err
+		return "",fmt.Errorf("somthing went wrong while encrypting")
 	}
 	//Execuiting the query and Creating new UUID and returning error if present
 	var newUID = uuid.New().String()
 	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , username , password) VALUES($1 , $2 , $3)", &newUID , &newUser.Name , hashpass); err != nil {
-		return "",err
+		return "",fmt.Errorf("unable to create user")
 	}
 	
 	
@@ -56,7 +57,7 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 	})
 	tokenString , err := token.SignedString([]byte("vsense"))
 	if err != nil {
-		return "",err
+		return "",fmt.Errorf("failed to create auth token")
 	}
 
 	//Return JWT token if No error
@@ -73,20 +74,20 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	
 	//Decoding the json from reader to the newly created variale
 	if err := json.NewDecoder(*reader).Decode(&userIns); err !=  nil {
-		return "",err
+		return "",fmt.Errorf("please enter valid details")
 	}
 	
 	//Querying User from Database
 		err := a.db.QueryRow("SELECT user_id , username , password FROM "+urlPath+" WHERE username=$1", &userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
 		if err != nil {
-			return "",err
+			return "",fmt.Errorf("user is invalid")
 		}
 
 	
 	//Comparing HashedPassword with Normal Password
 	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(userIns.Password))
 	if err != nil {
-		return "",err
+		return "",fmt.Errorf("failed to validate password")
 	}
 	
 	//Creating JWT token and Setting Cookie
@@ -97,7 +98,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	})
 	tokenString , err := token.SignedString([]byte("vsense"))
 	if err != nil {
-		return "",err
+		return "",fmt.Errorf("failed to create auth token")
 	}
 	
 	//JWT token if No Error
