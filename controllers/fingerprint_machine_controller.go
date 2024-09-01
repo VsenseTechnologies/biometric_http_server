@@ -8,17 +8,17 @@ import (
 	"vsensetech.in/go_fingerprint_server/payload"
 )
 
-type UserMachineController struct {
-	userMachineRepository models.UserMachineRepository
+type FingerprintMachineController struct {
+	userMachineRepository models.FingerprintMachinesRepository
 }
 
-func NewUserMachineController(umr models.UserMachineRepository) *UserMachineController {
-	return &UserMachineController{
+func NewFingerprintMachineController(umr models.FingerprintMachinesRepository) *FingerprintMachineController {
+	return &FingerprintMachineController{
 		userMachineRepository: umr,
 	}
 }
 
-func (umc *UserMachineController) FetchAllMachinesController(w http.ResponseWriter, r *http.Request) {
+func (umc *FingerprintMachineController) FetchAllMachinesController(w http.ResponseWriter, r *http.Request) {
 	data, err := umc.userMachineRepository.FetchAllMachines(&r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -27,10 +27,9 @@ func (umc *UserMachineController) FetchAllMachinesController(w http.ResponseWrit
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(payload.SuccessPayloadWithData{Message: "Success", Data: data})
-	return
 }
 
-func (umc *UserMachineController) DeleteMachineController(w http.ResponseWriter, r *http.Request) {
+func (umc *FingerprintMachineController) DeleteMachineController(w http.ResponseWriter, r *http.Request) {
 	if err := umc.userMachineRepository.DeleteMachine(&r.Body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
@@ -38,10 +37,9 @@ func (umc *UserMachineController) DeleteMachineController(w http.ResponseWriter,
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
-	return
 }
 
-func (umc *UserMachineController) AddMachineController(w http.ResponseWriter, r *http.Request) {
+func (umc *FingerprintMachineController) AddMachineController(w http.ResponseWriter, r *http.Request) {
 	if err := umc.userMachineRepository.AddMachine(&r.Body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
@@ -49,5 +47,4 @@ func (umc *UserMachineController) AddMachineController(w http.ResponseWriter, r 
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
-	return
 }

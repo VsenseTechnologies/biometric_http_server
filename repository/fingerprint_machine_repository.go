@@ -10,22 +10,22 @@ import (
 	"vsensetech.in/go_fingerprint_server/models"
 )
 
-type UserMachineRepo struct {
+type FingerprintMachineRepo struct {
 	db  *sql.DB
 	mut *sync.Mutex
 }
 
-func NewUserMachineRepo(db *sql.DB, mut *sync.Mutex) *UserMachineRepo {
-	return &UserMachineRepo{
+func NewFingerprintMachineRepo(db *sql.DB, mut *sync.Mutex) *FingerprintMachineRepo {
+	return &FingerprintMachineRepo{
 		db,
 		mut,
 	}
 }
 
-func (umr *UserMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.UserMachines, error) {
+func (umr *FingerprintMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.FingerprintMachinesModel, error) {
 	umr.mut.Lock()
 	defer umr.mut.Unlock()
-	var user models.Users
+	var user models.UsersModel
 	if err := json.NewDecoder(*reader).Decode(&user); err != nil {
 		return nil, err
 	}
@@ -35,8 +35,8 @@ func (umr *UserMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.Us
 	}
 	defer res.Close()
 
-	var userMachines []models.UserMachines
-	var userMachine models.UserMachines
+	var userMachines []models.FingerprintMachinesModel
+	var userMachine models.FingerprintMachinesModel
 
 	for res.Next() {
 		err := res.Scan(&userMachine.UnitID, &userMachine.Status)
@@ -51,10 +51,10 @@ func (umr *UserMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.Us
 	return userMachines, nil
 }
 
-func (umr *UserMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
+func (umr *FingerprintMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 	umr.mut.Lock()
 	defer umr.mut.Unlock()
-	var machine models.UserMachines
+	var machine models.FingerprintMachinesModel
 	if err := json.NewDecoder(*reader).Decode(&machine); err != nil {
 		return err
 	}
@@ -69,10 +69,10 @@ func (umr *UserMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 	return nil
 }
 
-func (umr *UserMachineRepo) AddMachine(reader *io.ReadCloser) error {
+func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 	umr.mut.Lock()
 	defer umr.mut.Unlock()
-	var newMachine models.UserNewMachine
+	var newMachine models.FingerprintMachinesModel
 
 	if err := json.NewDecoder(*reader).Decode(&newMachine); err != nil {
 		return nil

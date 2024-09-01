@@ -19,7 +19,7 @@ func NewUsersRepo(db *sql.DB , mut *sync.Mutex) *UsersRepo{
 	}
 }
 
-func(ur *UsersRepo) FetchAllUsers() ([]models.Users , error) {
+func(ur *UsersRepo) FetchAllUsers() ([]models.UsersModel , error) {
 	ur.mut.Lock()
 	defer ur.mut.Unlock()
 	res , err := ur.db.Query("SELECT username , user_id FROM users")
@@ -28,8 +28,8 @@ func(ur *UsersRepo) FetchAllUsers() ([]models.Users , error) {
 	}
 	defer res.Close()
 	
-	var userList []models.Users
-	var user models.Users
+	var userList []models.UsersModel
+	var user models.UsersModel
 	
 	for res.Next() {
 		err := res.Scan(&user.UserName , &user.UserID)

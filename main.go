@@ -43,6 +43,7 @@ func main(){
 	routers.AuthRouter(db , mut, router)
 	routers.InitRouter(db, router)
 	routers.AdminRouters(db, mut, router)
+	routers.UserRoutes(db , mut , router)
 	
 	
 	//Starting The Server

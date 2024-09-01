@@ -25,8 +25,8 @@ func AdminRouters(db *sql.DB , mut *sync.Mutex , router *mux.Router){
 	//End User Management Operation 
 	
 	// Admin User Machine Operations
-	userMachinesRepo := repository.NewUserMachineRepo(db, mut)
-	userMachineCont := controllers.NewUserMachineController(userMachinesRepo)
+	userMachinesRepo := repository.NewFingerprintMachineRepo(db, mut)
+	userMachineCont := controllers.NewFingerprintMachineController(userMachinesRepo)
 	
 	router.HandleFunc("/admin/getmachines" , userMachineCont.FetchAllMachinesController).Methods("POST")
 	router.HandleFunc("/admin/addmachine" , userMachineCont.AddMachineController).Methods("POST")
