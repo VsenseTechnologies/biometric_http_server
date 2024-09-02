@@ -52,7 +52,7 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 	//Creating JWT token and Setting Cookie
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":newUID,
-		"username":newUser.Name,
+		"user_name":newUser.Name,
 		"expiry": time.Now().Add(365 * 24 * time.Hour).Unix(),
 	})
 	tokenString , err := token.SignedString([]byte("vsense"))
@@ -78,7 +78,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	}
 	
 	//Querying User from Database
-		err := a.db.QueryRow("SELECT user_id , username , password FROM "+urlPath+" WHERE username=$1", &userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
+		err := a.db.QueryRow("SELECT user_id , user_name , password FROM "+urlPath+" WHERE username=$1", &userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
 		if err != nil {
 			return "",fmt.Errorf("user is invalid")
 		}
@@ -93,7 +93,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	//Creating JWT token and Setting Cookie
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":UID,
-		"username":dbUser.Name,
+		"user_name":dbUser.Name,
 		"expiry": time.Now().Add(365 * 24 * time.Hour).Unix(),
 	})
 	tokenString , err := token.SignedString([]byte("vsense"))
