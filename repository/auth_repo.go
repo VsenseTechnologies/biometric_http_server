@@ -44,7 +44,7 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 	}
 	//Execuiting the query and Creating new UUID and returning error if present
 	var newUID = uuid.New().String()
-	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , username , password) VALUES($1 , $2 , $3)", &newUID , &newUser.Name , hashpass); err != nil {
+	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", &newUID , &newUser.Name , hashpass); err != nil {
 		return "",fmt.Errorf("unable to create user")
 	}
 	
