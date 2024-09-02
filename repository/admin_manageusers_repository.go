@@ -40,7 +40,7 @@ func(mur *ManageUserRepo) GiveUserAccess(reader *io.ReadCloser) error {
 	}
 	var mailSubject string = "Access to Fingerprint Software"
 	var mailBody string = "This Mail consist of username and password for Accessing VSENSE Fingerprint Software\nUsername: "+newUser.UserName+"\npassword: "+newUser.Password
-	var mailMessage string = mailSubject + "\n" + mailBody
+	var mailMessage string = mailSubject+"\n"+mailBody
 	var mailDetails = smtp.PlainAuth(
 		"", 
 		os.Getenv("SMTP_USERNAME"), 

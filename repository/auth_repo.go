@@ -44,7 +44,7 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 	}
 	//Execuiting the query and Creating new UUID and returning error if present
 	var newUID = uuid.New().String()
-	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", &newUID , &newUser.Name , hashpass); err != nil {
+	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", newUID , newUser.Name , hashpass); err != nil {
 		return "",fmt.Errorf("unable to create user")
 	}
 	
@@ -78,7 +78,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	}
 	
 	//Querying User from Database
-		err := a.db.QueryRow("SELECT user_id , user_name , password FROM "+urlPath+" WHERE user_name=$1", &userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
+		err := a.db.QueryRow("SELECT user_id , user_name , password FROM "+urlPath+" WHERE user_name=$1", userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
 		if err != nil {
 			return "",fmt.Errorf("user is invalid")
 		}

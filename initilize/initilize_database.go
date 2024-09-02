@@ -34,7 +34,7 @@ func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
-	if _ , err := i.db.Exec("CREATE TABLE fingerprintdata(student_id VARCHAR(100) PRIMARY KEY, unit_id VARCHAR(50) , online BOOLEAN NOT NULL, FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE)"); err != nil {
+	if _ , err := i.db.Exec("CREATE TABLE fingerprintdata(student_id VARCHAR(100) PRIMARY KEY, unit_id VARCHAR(50) , fingerprint BLOB, FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE)"); err != nil {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return

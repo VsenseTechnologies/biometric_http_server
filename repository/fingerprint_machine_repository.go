@@ -79,7 +79,7 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 	}
 
 
-	query := fmt.Sprintf("CREATE TABLE %s (student_id VARCHAR(100) PRIMARY KEY, name VARCHAR(50) NOT NULL, usn VARCHAR(20) NOT NULL, department VARCHAR(20) NOT NULL)", newMachine.UnitID)
+	query := fmt.Sprintf("CREATE TABLE %s (student_id VARCHAR(100), name VARCHAR(50) NOT NULL, usn VARCHAR(20) NOT NULL, department VARCHAR(20) NOT NULL , FOREIGN KEY student_id REFERENCES fingerprintdata(student_id) ON DELETE CASCADE)", newMachine.UnitID)
 
 	if _, err := umr.db.Exec(query); err != nil {
     	return err
