@@ -32,7 +32,7 @@ func(mur *ManageUserRepo) GiveUserAccess(reader *io.ReadCloser) error {
 	if err := json.NewDecoder(*reader).Decode(&newUser); err != nil {
 		return err
 	}
-	if err := mur.db.QueryRow("SELECT password FROM users WHERE username=$1", newUser.UserName).Scan(&password); err != nil {
+	if err := mur.db.QueryRow("SELECT password FROM users WHERE user_name=$1", newUser.UserName).Scan(&password); err != nil {
 		return err
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(password), []byte(newUser.Password)); err != nil {
