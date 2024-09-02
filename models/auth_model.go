@@ -3,7 +3,7 @@ package models
 import "io"
 
 type AuthDetails struct {
-	Name     string `json:"username"`
+	Name     string `json:"user_name"`
 	Password string `json:"password"`
 }
 

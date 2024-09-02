@@ -4,7 +4,7 @@ import "io"
 
 type ManageUsers struct {
 	Email    string `json:"email"`
-	UserName string `json:"username"`
+	UserName string `json:"user_name"`
 	Password string `json:"password"`
 }
 

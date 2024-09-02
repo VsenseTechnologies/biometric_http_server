@@ -19,7 +19,7 @@ func NewInitInstance(db *sql.DB) *Init{
 }
 
 func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
-	if _ , err := i.db.Exec("CREATE TABLE admin(admin_id VARCHAR(100) PRIMARY KEY, admin_name VARCHAR(50) NOT NULL, password VARCHAR(100) NOT NULL)"); err != nil {
+	if _ , err := i.db.Exec("CREATE TABLE admin(user_id VARCHAR(100) PRIMARY KEY, user_name VARCHAR(50) NOT NULL, password VARCHAR(100) NOT NULL)"); err != nil {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
