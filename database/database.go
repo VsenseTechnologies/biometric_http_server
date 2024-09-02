@@ -7,14 +7,11 @@ import (
 
 
 type DatabaseConnection struct{
-	Username string
-	Password string
-	DatabaseName string
-	SSLMode string
+	DatabaseURL string 
 }
 
 func (dc *DatabaseConnection) ConnectToDatabase() (*sql.DB , error){
-	db , err := sql.Open("postgres", "postgresql://fingerprint_user:VAYbmJfOZYyJDBDKL1U7BRxv6OoqRR1h@dpg-cr4r595umphs73drro10-a/fingerprint")
+	db , err := sql.Open("postgres", dc.DatabaseURL)
 	if err != nil {
 		return nil , err
 	}

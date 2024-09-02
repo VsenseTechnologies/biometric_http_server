@@ -22,10 +22,7 @@ func main(){
 	
 	//Creating Database Connection
 	databaseConnection := database.DatabaseConnection{
-		DatabaseName: os.Getenv("DB_NAME"),
-		Username: os.Getenv("DB_USERNAME"),
-		Password: os.Getenv("DB_PASSWORD"),
-		SSLMode: os.Getenv("DB_SSLMODE"),
+		DatabaseURL: os.Getenv("DB_URL"),
 	}
 	db , err := databaseConnection.ConnectToDatabase()
 	if err != nil {
