@@ -78,7 +78,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	}
 	
 	//Querying User from Database
-		err := a.db.QueryRow("SELECT user_id , user_name , password FROM "+urlPath+" WHERE username=$1", &userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
+		err := a.db.QueryRow("SELECT user_id , user_name , password FROM "+urlPath+" WHERE user_name=$1", &userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
 		if err != nil {
 			return "",fmt.Errorf("user is invalid")
 		}
