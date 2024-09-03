@@ -38,7 +38,7 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			HttpOnly:    true,
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
 			Partitioned: true,
-			Domain: "biometric-dashboard-admin.vercel.app",
+			Domain: "vercel.app",
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -68,7 +68,7 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Path:        "/",
 			HttpOnly:    true,
 			Partitioned: true,
-			Domain: "biometric-dashboard-admin.vercel.app",
+			Domain: "vercel.app",
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
