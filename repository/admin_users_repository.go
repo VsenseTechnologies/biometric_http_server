@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"sync"
 
 	"vsensetech.in/go_fingerprint_server/models"
@@ -24,7 +25,7 @@ func(ur *UsersRepo) FetchAllUsers() ([]models.UsersModel , error) {
 	defer ur.mut.Unlock()
 	res , err := ur.db.Query("SELECT user_name , user_id FROM users")
 	if err != nil {
-		return nil , err
+		return nil ,fmt.Errorf("unable to fetch colleges")
 	}
 	defer res.Close()
 	
@@ -34,7 +35,7 @@ func(ur *UsersRepo) FetchAllUsers() ([]models.UsersModel , error) {
 	for res.Next() {
 		err := res.Scan(&user.UserName , &user.UserID)
 		if err != nil {
-			return nil , err
+			return nil , fmt.Errorf("Unable to add college")
 		}
 		userList = append(userList, user)
 	}

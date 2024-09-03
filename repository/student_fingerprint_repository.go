@@ -26,15 +26,15 @@ func NewStudentFingerprintRepo(db *sql.DB , mut *sync.Mutex) *StudentFingerprint
 func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 	var newStudent models.StudentFingerprintRegistrationModel
 	if err := json.NewDecoder(*reader).Decode(&newStudent); err != nil {
-		return err
+		return fmt.Errorf("invalid credentials")
 	}
 	newStudent.StudentID = uuid.New().String()
 	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_name , student_usn , student_department) VALUES($1 , $2 , $3 , $4)",newStudent.UnitID)
 	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
-		return err
+		return fmt.Errorf("unable to enter the student deatils")
 	}
 	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , unit_id , fingerprint) VALUES($1 , $2 , $3)",newStudent.StudentID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
-		return err
+		return fmt.Errorf("unable to enter the student fingerprint details")
 	}
 	return nil
 }
@@ -42,12 +42,12 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]models.StudentDetailsModel , error){
 	var unitId string
 	if err := json.NewDecoder(*reader).Decode(&unitId); err != nil {
-		return nil,err
+		return nil,fmt.Errorf("invalid unit")
 	}
 	var queryString = fmt.Sprintf("SELECT student_name , student_usn FROM %s", unitId)
 	res , err := sfr.db.Query(queryString)
 	if err != nil {
-		return nil,err
+		return nil,fmt.Errorf("unable to fetch user details")
 	}
 	defer res.Close()
 
@@ -55,7 +55,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	var students []models.StudentDetailsModel
 	for res.Next(){
 		if err := res.Scan(&student.StudentName , &student.StudentUSN); err != nil {
-			return nil,err
+			return nil,fmt.Errorf("")
 		}
 		students = append(students, student)
 	}
@@ -68,11 +68,11 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) ([]models.StudentLogHistoryModel , error) {
 	var studentID string
 	if err := json.NewDecoder(*reader).Decode(&studentID); err != nil {
-		return nil,err
+		return nil,fmt.Errorf("invalid studentID")
 	}
 	res , err := sfr.db.Query("SELECT login , logout , date FROM attendence WHERE unit_id=$1",studentID)
 	if err != nil {
-		return nil,err
+		return nil,fmt.Errorf("unable to fetch loghistory")
 	}
 	defer res.Close()
 
@@ -80,12 +80,12 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 	var logs []models.StudentLogHistoryModel
 	for res.Next(){
 		if err := res.Scan(&log.LoginTime , &log.LogoutTime , &log.Date); err != nil {
-			return nil , err
+			return nil , fmt.Errorf("failed to fetch log  history")
 		}
 		logs = append(logs, log)
 	}
 	if res.Err() != nil {
-		return nil , res.Err()
+		return nil ,fmt.Errorf("something went wrong")
 	}
 	return logs , nil
 }
@@ -93,11 +93,11 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 	var studentCred models.StudentOperationModel
 	if err := json.NewDecoder(*reader).Decode(&studentCred); err != nil {
-		return err
+		return fmt.Errorf("invalid studentcredentials")
 	}
 	var queryString = fmt.Sprintf("DELETE FROM %s WHERE student_id=$1" , studentCred.UnitID)
 	if _ , err := sfr.db.Exec(queryString , studentCred.StudentID); err != nil {
-		return err
+		return fmt.Errorf("unable to delete student")
 	}
 	return nil
 }
@@ -105,11 +105,11 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 func(sfr *StudentFingerprintRepo) UpdateStudent(reader *io.ReadCloser) error {
 	var studentCred models.StudentOperationModel
 	if err := json.NewDecoder(*reader).Decode(&studentCred); err != nil {
-		return err
+		return fmt.Errorf("invalid credentials")
 	}
 	var queryString = fmt.Sprintf("UPDATE %s SET student_name=$1 , student_usn=$2 WHERE student_id=$3" , studentCred.UnitID) 
 	if _ , err := sfr.db.Exec(queryString , studentCred.StudentName , studentCred.StudentUSN , studentCred.StudentID); err != nil {
-		return err
+		return fmt.Errorf("unable to update student")
 	}
 	return nil
 }

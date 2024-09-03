@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/smtp"
 	"os"
@@ -30,13 +31,13 @@ func(mur *ManageUserRepo) GiveUserAccess(reader *io.ReadCloser) error {
 	var newUser models.ManageUsers
 	var password string
 	if err := json.NewDecoder(*reader).Decode(&newUser); err != nil {
-		return err
+		return fmt.Errorf("`invalid credentials")
 	}
 	if err := mur.db.QueryRow("SELECT password FROM users WHERE user_name=$1", newUser.UserName).Scan(&password); err != nil {
-		return err
+		return fmt.Errorf("enter password is invalid")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(password), []byte(newUser.Password)); err != nil {
-		return err
+		return fmt.Errorf("failed to validate password")
 	}
 	var mailSubject string = "Access to Fingerprint Software"
 	var mailBody string = "This Mail consist of username and password for Accessing VSENSE Fingerprint Software\nUsername: "+newUser.UserName+"\npassword: "+newUser.Password
