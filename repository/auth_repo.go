@@ -40,7 +40,7 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 	//Hashing the password
 	hashpass , err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return "",fmt.Errorf("somthing went wrong while encrypting")
+		return "",fmt.Errorf("somthing went wrong while hashing")
 	}
 	//Execuiting the query and Creating new UUID and returning error if present
 	var newUID = uuid.New().String()

@@ -26,5 +26,4 @@ func(muc *ManageUsersController) GiveUserAccessController(w http.ResponseWriter 
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
-	return
 }

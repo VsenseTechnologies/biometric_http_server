@@ -17,7 +17,7 @@ func main(){
 	//Loading The Environment Variables
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Unable to load the Environment Variable please check and try again...")
+		log.Println(err.Error())
 	}
 	
 	//Creating Database Connection
@@ -26,7 +26,7 @@ func main(){
 	}
 	db , err := databaseConnection.ConnectToDatabase()
 	if err != nil {
-		log.Println("Unable To Connect To Database Please Check...")
+		log.Println(err.Error())
 	}
 	defer db.Close()
 	
