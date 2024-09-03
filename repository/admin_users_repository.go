@@ -35,12 +35,12 @@ func(ur *UsersRepo) FetchAllUsers() ([]models.UsersModel , error) {
 	for res.Next() {
 		err := res.Scan(&user.UserName , &user.UserID)
 		if err != nil {
-			return nil , fmt.Errorf("Unable to add college")
+			return nil , fmt.Errorf("unable to add college")
 		}
 		userList = append(userList, user)
 	}
 	if res.Err() != nil {
-		return nil , res.Err()
+		return nil , fmt.Errorf("something went wrong")
 	}
 	return userList , nil
 }

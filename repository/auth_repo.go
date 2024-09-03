@@ -34,13 +34,13 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 	
 	//Decoding the json from reader to the newly created variale
 	if err := json.NewDecoder(*reader).Decode(&newUser); err != nil {
-		return "",fmt.Errorf("please enter valid details")
+		return "",fmt.Errorf("invalid credentials")
 	}
 	
 	//Hashing the password
 	hashpass , err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return "",fmt.Errorf("somthing went wrong while hashing")
+		return "",fmt.Errorf("somthing went wrong")
 	}
 	//Execuiting the query and Creating new UUID and returning error if present
 	var newUID = uuid.New().String()
@@ -74,7 +74,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	
 	//Decoding the json from reader to the newly created variale
 	if err := json.NewDecoder(*reader).Decode(&userIns); err !=  nil {
-		return "",fmt.Errorf("failed to decode request")
+		return "",fmt.Errorf("invalid credentials")
 	}
 	
 	//Querying User from Database
@@ -87,7 +87,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	//Comparing HashedPassword with Normal Password
 	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(userIns.Password))
 	if err != nil {
-		return "",fmt.Errorf("failed to validate password")
+		return "",fmt.Errorf("unable to validate password")
 	}
 	
 	//Creating JWT token and Setting Cookie
@@ -98,7 +98,7 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 	})
 	tokenString , err := token.SignedString([]byte("vsense"))
 	if err != nil {
-		return "",fmt.Errorf("failed to create auth token")
+		return "",fmt.Errorf("unable to create auth token")
 	}
 	
 	//JWT token if No Error

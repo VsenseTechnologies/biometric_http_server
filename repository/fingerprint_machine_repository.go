@@ -27,11 +27,11 @@ func (umr *FingerprintMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]mo
 	defer umr.mut.Unlock()
 	var user models.UsersModel
 	if err := json.NewDecoder(*reader).Decode(&user); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid credendials")
 	}
 	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", user.UserID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get id")
 	}
 	defer res.Close()
 
@@ -41,12 +41,12 @@ func (umr *FingerprintMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]mo
 	for res.Next() {
 		err := res.Scan(&userMachine.UnitID, &userMachine.Status)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("invalid credendials")
 		}
 		userMachines = append(userMachines, userMachine)
 	}
 	if res.Err() != nil {
-		return nil, res.Err()
+		return nil, fmt.Errorf("something went wrong")
 	}
 	return userMachines, nil
 }
@@ -56,15 +56,15 @@ func (umr *FingerprintMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 	defer umr.mut.Unlock()
 	var machine models.FingerprintMachinesModel
 	if err := json.NewDecoder(*reader).Decode(&machine); err != nil {
-		return err
+		return fmt.Errorf("unable to process request")
 	}
 	query := fmt.Sprintf("DROP TABLE %s", machine.UnitID)
 
 	if _, err := umr.db.Exec(query); err != nil {
-    	return err
+    	return fmt.Errorf("unable to delete table")
 	}
 	if _, err := umr.db.Exec("DELETE FROM biometric WHERE unit_id=$1", machine.UnitID); err != nil {
-		return err
+		return fmt.Errorf("unable to delete unit")
 	}
 	return nil
 }
@@ -82,7 +82,7 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 	query := fmt.Sprintf("CREATE TABLE %s (student_id VARCHAR(100), student_name VARCHAR(50) NOT NULL, student_usn VARCHAR(20) NOT NULL, department VARCHAR(20) NOT NULL , FOREIGN KEY (student_id) REFERENCES fingerprintdata(student_id) ON DELETE CASCADE)", newMachine.UnitID)
 
 	if _, err := umr.db.Exec(query); err != nil {
-    	return err
+    	return fmt.Errorf("unable to create table")
 	}
 
 

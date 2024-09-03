@@ -31,10 +31,10 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 	newStudent.StudentID = uuid.New().String()
 	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_name , student_usn , student_department) VALUES($1 , $2 , $3 , $4)",newStudent.UnitID)
 	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
-		return fmt.Errorf("unable to enter the student deatils")
+		return fmt.Errorf("unable to add the student deatils")
 	}
 	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , unit_id , fingerprint) VALUES($1 , $2 , $3)",newStudent.StudentID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
-		return fmt.Errorf("unable to enter the student fingerprint details")
+		return fmt.Errorf("unable to add the student fingerprint details")
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	var queryString = fmt.Sprintf("SELECT student_name , student_usn FROM %s", unitId)
 	res , err := sfr.db.Query(queryString)
 	if err != nil {
-		return nil,fmt.Errorf("unable to fetch user details")
+		return nil,fmt.Errorf("unable to fetch student details")
 	}
 	defer res.Close()
 
@@ -55,12 +55,12 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	var students []models.StudentDetailsModel
 	for res.Next(){
 		if err := res.Scan(&student.StudentName , &student.StudentUSN); err != nil {
-			return nil,fmt.Errorf("")
+			return nil,fmt.Errorf("unable to add students")
 		}
 		students = append(students, student)
 	}
 	if res.Err() != nil {
-		return nil,res.Err()
+		return nil,fmt.Errorf("something went wrong")
 	}
 	return students , nil
 }
@@ -80,7 +80,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 	var logs []models.StudentLogHistoryModel
 	for res.Next(){
 		if err := res.Scan(&log.LoginTime , &log.LogoutTime , &log.Date); err != nil {
-			return nil , fmt.Errorf("failed to fetch log  history")
+			return nil , fmt.Errorf("unable to fetch log  history")
 		}
 		logs = append(logs, log)
 	}
