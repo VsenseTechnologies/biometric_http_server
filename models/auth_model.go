@@ -7,7 +7,7 @@ type AuthDetails struct {
 	Password string `json:"password"`
 }
 
-type AuthRepository interface {
+type AuthDetailsRepository interface {
 	Register(*io.ReadCloser, string) (string, error)
 	Login(*io.ReadCloser, string) (string, error)
 }

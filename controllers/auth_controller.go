@@ -11,10 +11,10 @@ import (
 )
 
 type AuthController struct {
-	AuthRepository models.AuthRepository
+	AuthRepository models.AuthDetailsRepository
 }
 
-func NewAuthController(ar models.AuthRepository) *AuthController {
+func NewAuthController(ar models.AuthDetailsRepository) *AuthController {
 	return &AuthController{
 		AuthRepository: ar,
 	}
@@ -37,7 +37,6 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Path:        "/",
 			HttpOnly:    true,
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
-			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -66,7 +65,6 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
 			HttpOnly:    true,
-			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)

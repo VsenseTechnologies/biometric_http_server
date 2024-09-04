@@ -14,7 +14,7 @@ func AdminRouters(db *sql.DB , mut *sync.Mutex , router *mux.Router){
 	usersRepo := repository.NewUsersRepo(db, mut)
 	userCont := controllers.NewUsersController(usersRepo)
 	
-	router.HandleFunc("/admin/getusers" , userCont.FetchAllUsersController).Methods("POST")
+	router.HandleFunc("/admin/getusers" , userCont.FetchAllUsersController).Methods("GET")
 	// End Users Operation
 	
 	//Admin User Management Operation 

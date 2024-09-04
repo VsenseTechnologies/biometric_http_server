@@ -14,42 +14,39 @@ import (
 	"vsensetech.in/go_fingerprint_server/models"
 )
 
-type Auth struct{
+type AuthDetailsRepo struct{
 	db *sql.DB
 	mut *sync.Mutex
 }
 
-func NewAuth(db *sql.DB , mut *sync.Mutex) *Auth {
-	return &Auth{
+func NewAuth(db *sql.DB , mut *sync.Mutex) *AuthDetailsRepo {
+	return &AuthDetailsRepo{
 		db,
 		mut,
 	}
 }
 
-func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) {
+func(a *AuthDetailsRepo) Register(reader *io.ReadCloser , urlPath string) (string , error) {
+	// Locking The Process To Avoid Crashes
 	a.mut.Lock()
 	defer a.mut.Unlock()
-	//Creating a new variable of type AdminAuthDetails
+	// Creating New User Model to Store json to go Objects
 	var newUser models.AuthDetails
 	
-	//Decoding the json from reader to the newly created variale
+	// Reading the json from Reader and Storing it on to Objects
 	if err := json.NewDecoder(*reader).Decode(&newUser); err != nil {
 		return "",fmt.Errorf("invalid credentials")
 	}
 	
-	//Hashing the password
+	// Hashing the Password for Security
 	hashpass , err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return "",fmt.Errorf("somthing went wrong")
 	}
-	//Execuiting the query and Creating new UUID and returning error if present
+	// Creating a New User ID for the User
 	var newUID = uuid.New().String()
-	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", newUID , newUser.Name , hashpass); err != nil {
-		return "",fmt.Errorf("unable to create user")
-	}
-	
-	
-	//Creating JWT token and Setting Cookie
+
+	// Creating a JWT Request Verificaation Token to Validate Users Request
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":newUID,
 		"user_name":newUser.Name,
@@ -60,40 +57,48 @@ func(a *Auth) Register(reader *io.ReadCloser , urlPath string) (string , error) 
 		return "",fmt.Errorf("failed to create auth token")
 	}
 
-	//Return JWT token if No error
+
+	// Entering User Details on to Database
+	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", newUID , newUser.Name , hashpass); err != nil {
+		return "",fmt.Errorf("unable to create user")
+	}
+
+	// Returning Generated Token to User
 	return tokenString,nil
 }
 
-func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
+func(a *AuthDetailsRepo) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
+	// Locking The Process To Avoid Crashes
 	a.mut.Lock()
 	defer a.mut.Unlock()
-	//Creating a new variable of type AdminAuthDetails
-	var userIns models.AuthDetails
-	var dbUser models.AuthDetails
+
+	// The reqData stores The Data Sent By User and The dbData Stores The Data Fetched From Database With Respect To User Data
+	var reqData models.AuthDetails
+	var dbData models.AuthDetails
 	var UID string
 	
-	//Decoding the json from reader to the newly created variale
-	if err := json.NewDecoder(*reader).Decode(&userIns); err !=  nil {
+	// Reading the json from Reader and Storing it on to Objects
+	if err := json.NewDecoder(*reader).Decode(&reqData); err !=  nil {
 		return "",fmt.Errorf("invalid credentials")
 	}
 	
-	//Querying User from Database
-		err := a.db.QueryRow("SELECT user_id , user_name , password FROM "+urlPath+" WHERE user_name=$1", userIns.Name).Scan(&UID, &dbUser.Name , &dbUser.Password)
-		if err != nil {
-			return "",fmt.Errorf("unable to retrive the user data")
-		}
+	// Querying User from Database
+	err := a.db.QueryRow("SELECT user_id , user_name , password FROM "+urlPath+" WHERE user_name=$1", reqData.Name).Scan(&UID, &dbData.Name , &dbData.Password)
+	if err != nil {
+		return "",fmt.Errorf("unable to retrive the user data")
+	}
 
 	
-	//Comparing HashedPassword with Normal Password
-	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(userIns.Password))
+	// Comparing HashedPassword with Normal Password
+	err = bcrypt.CompareHashAndPassword([]byte(dbData.Password), []byte(reqData.Password))
 	if err != nil {
 		return "",fmt.Errorf("unable to validate password")
 	}
 	
-	//Creating JWT token and Setting Cookie
+	// Creating a JWT Request Verificaation Token to Validate Users Request
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":UID,
-		"user_name":dbUser.Name,
+		"user_name":dbData.Name,
 		"expiry": time.Now().Add(365 * 24 * time.Hour).Unix(),
 	})
 	tokenString , err := token.SignedString([]byte("vsense"))
@@ -101,6 +106,6 @@ func(a *Auth) Login(reader *io.ReadCloser , urlPath string)  (string , error) {
 		return "",fmt.Errorf("unable to create auth token")
 	}
 	
-	//JWT token if No Error
+	// Sending The JWT Token to User
 	return tokenString,nil
 }
