@@ -30,39 +30,42 @@ func JwtMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var jwtSecretKey = []byte("vsense")
 		fmt.Println(r.URL.Path)
-		var path string = strings.Split(r.URL.Path, "/")[2]
-		fmt.Println(path)
+		var path []string = strings.Split(r.URL.Path, "/")
+		fmt.Println(path[2])
 		// Bypass the middleware for login and register routes
-		if path == "login" || path == "register" {
+		if path[2] == "login" || path[2] == "register" {
 			next.ServeHTTP(w, r)
 			return
 		}
+		if(path[1] == "admin"){
+			// Get JWT token from cookies
+			cookie, err := r.Cookie("token")
+			if err != nil {
+				http.Error(w, "Unauthorized - no token provided", http.StatusUnauthorized)
+				return
+			}
 
-		// Get JWT token from cookies
-		cookie, err := r.Cookie("token")
-		if err != nil {
-			http.Error(w, "Unauthorized - no token provided", http.StatusUnauthorized)
-			return
-		}
+			tokenString := cookie.Value
+			fmt.Println(tokenString)
 
-		tokenString := cookie.Value
-		fmt.Println(tokenString)
-
-		// Parse and validate the token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			// Parse and validate the token
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			// Check the signing method
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 			return jwtSecretKey, nil
-		})
+			})
 
-		if err != nil || !token.Valid {
+			if err != nil || !token.Valid {
 			http.Error(w, "Unauthorized - invalid token", http.StatusUnauthorized)
 			return
+			}
+			// If token is valid, proceed to the next handler
+			next.ServeHTTP(w, r)
+		}else{
+			next.ServeHTTP(w, r)
 		}
-
-		// If token is valid, proceed to the next handler
-		next.ServeHTTP(w, r)
+		
 	})
 }

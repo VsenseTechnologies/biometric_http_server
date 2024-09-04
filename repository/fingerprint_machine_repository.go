@@ -23,13 +23,16 @@ func NewFingerprintMachineRepo(db *sql.DB, mut *sync.Mutex) *FingerprintMachineR
 }
 
 func (umr *FingerprintMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.FingerprintMachinesModel, error) {
+	// Locking The Process To Prevent Crashing
 	umr.mut.Lock()
 	defer umr.mut.Unlock()
-	var user models.UsersModel
-	if err := json.NewDecoder(*reader).Decode(&user); err != nil {
+
+	//
+	var userID string
+	if err := json.NewDecoder(*reader).Decode(&userID); err != nil {
 		return nil, fmt.Errorf("invalid credendials")
 	}
-	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", user.UserID)
+	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", userID)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get id")
 	}
