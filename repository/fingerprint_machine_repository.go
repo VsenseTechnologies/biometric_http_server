@@ -23,13 +23,15 @@ func NewFingerprintMachineRepo(db *sql.DB, mut *sync.Mutex) *FingerprintMachineR
 }
 
 func (umr *FingerprintMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]models.FingerprintMachinesModel, error) {
+	// Locking The Process To Prevent Crashing
 	umr.mut.Lock()
 	defer umr.mut.Unlock()
-	var user models.UsersModel
-	if err := json.NewDecoder(*reader).Decode(&user); err != nil {
+
+	var userID models.UsersModel
+	if err := json.NewDecoder(*reader).Decode(&userID); err != nil {
 		return nil, fmt.Errorf("invalid credendials")
 	}
-	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", user.UserID)
+	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", userID.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get id")
 	}
@@ -79,7 +81,7 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 	}
 
 
-	query := fmt.Sprintf("CREATE TABLE %s (student_id VARCHAR(100), student_name VARCHAR(50) NOT NULL, student_usn VARCHAR(20) NOT NULL, department VARCHAR(20) NOT NULL , FOREIGN KEY (student_id) REFERENCES fingerprintdata(student_id) ON DELETE CASCADE)", newMachine.UnitID)
+	query := fmt.Sprintf("CREATE TABLE %s (student_id VARCHAR(100), student_name VARCHAR(50) NOT NULL, student_usn VARCHAR(20) NOT NULL, department VARCHAR(20) NOT NULL , FOREIGN KEY (student_id) REFERENCES fingerprintdata(student_id)  ON DELETE CASCADE)", newMachine.UnitID)
 
 	if _, err := umr.db.Exec(query); err != nil {
     	return fmt.Errorf("unable to create table")
