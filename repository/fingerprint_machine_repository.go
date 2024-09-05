@@ -27,12 +27,11 @@ func (umr *FingerprintMachineRepo) FetchAllMachines(reader *io.ReadCloser) ([]mo
 	umr.mut.Lock()
 	defer umr.mut.Unlock()
 
-	//
-	var userID string
+	var userID models.UsersModel
 	if err := json.NewDecoder(*reader).Decode(&userID); err != nil {
 		return nil, fmt.Errorf("invalid credendials")
 	}
-	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", userID)
+	res, err := umr.db.Query("SELECT unit_id , online FROM biometric WHERE user_id=$1", userID.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get id")
 	}

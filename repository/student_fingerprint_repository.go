@@ -40,11 +40,11 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 }
 
 func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]models.StudentDetailsModel , error){
-	var unitId string
+	var unitId models.FingerprintMachinesModel
 	if err := json.NewDecoder(*reader).Decode(&unitId); err != nil {
 		return nil,fmt.Errorf("invalid unit")
 	}
-	var queryString = fmt.Sprintf("SELECT student_name , student_usn FROM %s", unitId)
+	var queryString = fmt.Sprintf("SELECT student_name , student_usn FROM %s", unitId.UnitID)
 	res , err := sfr.db.Query(queryString)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch student details")
