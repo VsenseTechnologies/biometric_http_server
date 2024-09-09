@@ -65,7 +65,7 @@ func JwtMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		}else{
 			var jwtToken payload.JWTTokenPayload
-			json.NewDecoder(r.Body).Decode(&jwtToken.Token)
+			json.NewDecoder(r.Body).Decode(&jwtToken)
 
 			fmt.Println(jwtToken)
 
