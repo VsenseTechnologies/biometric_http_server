@@ -40,11 +40,11 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 }
 
 func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]models.StudentDetailsModel , error){
-	var unitId models.FingerprintMachinesModel
-	if err := json.NewDecoder(*reader).Decode(&unitId); err != nil {
+	var unit models.FingerprintMachinesModel
+	if err := json.NewDecoder(*reader).Decode(&unit); err != nil {
 		return nil,fmt.Errorf("invalid unit")
 	}
-	var queryString = fmt.Sprintf("SELECT student_name , student_usn FROM %s", unitId.UnitID)
+	var queryString = fmt.Sprintf("SELECT student_name , student_usn FROM %s", unit.UnitID)
 	res , err := sfr.db.Query(queryString)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch student details")
@@ -66,11 +66,11 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 }
 
 func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) ([]models.StudentLogHistoryModel , error) {
-	var studentID string
-	if err := json.NewDecoder(*reader).Decode(&studentID); err != nil {
+	var student models.StudentDetailsModel
+	if err := json.NewDecoder(*reader).Decode(&student); err != nil {
 		return nil,fmt.Errorf("invalid studentID")
 	}
-	res , err := sfr.db.Query("SELECT login , logout , date FROM attendence WHERE unit_id=$1",studentID)
+	res , err := sfr.db.Query("SELECT login , logout , date FROM attendence WHERE unit_id=$1",student.StudentID)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch loghistory")
 	}
