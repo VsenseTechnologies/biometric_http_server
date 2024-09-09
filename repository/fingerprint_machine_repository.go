@@ -90,7 +90,7 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 
 
 	if _, err := umr.db.Exec("INSERT INTO biometric(user_id , unit_id , online) VALUES($1 , $2 , $3)", newMachine.UserID, newMachine.UnitID, false); err != nil {
-		return nil
+		return err
 	}
 	return nil
 }

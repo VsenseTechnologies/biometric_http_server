@@ -63,9 +63,11 @@ func JwtMiddleware(next http.Handler) http.Handler {
 			}
 			// If token is valid, proceed to the next handler
 			next.ServeHTTP(w, r)
-		}else {
+		}else{
 			var jwtToken payload.JWTTokenPayload
 			json.NewDecoder(r.Body).Decode(&jwtToken.Token)
+
+			fmt.Println(jwtToken)
 
 			// Parse and validate the token
 			token, err := jwt.Parse(jwtToken.Token, func(token *jwt.Token) (interface{}, error) {
