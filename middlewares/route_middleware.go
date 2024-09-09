@@ -64,25 +64,6 @@ func JwtMiddleware(next http.Handler) http.Handler {
 			// If token is valid, proceed to the next handler
 			next.ServeHTTP(w, r)
 		}else{
-			var jwtToken payload.JWTTokenPayload
-			json.NewDecoder(r.Body).Decode(&jwtToken)
-
-			fmt.Println(jwtToken)
-
-			// Parse and validate the token
-			token, err := jwt.Parse(jwtToken.Token, func(token *jwt.Token) (interface{}, error) {
-			// Check the signing method
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return jwtSecretKey, nil
-			})
-
-			if err != nil || !token.Valid {
-			http.Error(w, "Unauthorized - invalid token", http.StatusUnauthorized)
-			return
-			}
-			// If token is valid, proceed to the next handler
 			next.ServeHTTP(w, r)
 		}
 		
