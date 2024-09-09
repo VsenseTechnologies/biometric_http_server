@@ -70,7 +70,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 	if err := json.NewDecoder(*reader).Decode(&student); err != nil {
 		return nil,fmt.Errorf("invalid studentID")
 	}
-	res , err := sfr.db.Query("SELECT login , logout , date FROM attendence WHERE unit_id=$1",student.StudentID)
+	res , err := sfr.db.Query("SELECT login , logout , date FROM attendence WHERE student_id=$1",student.StudentID)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch loghistory")
 	}
