@@ -29,7 +29,7 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 		return fmt.Errorf("invalid credentials")
 	}
 	newStudent.StudentID = uuid.New().String()
-	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_name , student_usn , student_department) VALUES($1 , $2 , $3 , $4)",newStudent.UnitID)
+	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_name , student_usn , department) VALUES($1 , $2 , $3 , $4)",newStudent.UnitID)
 	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
 		return fmt.Errorf("unable to add the student deatils")
 	}
