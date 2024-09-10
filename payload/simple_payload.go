@@ -12,3 +12,7 @@ type SuccessPayloadWithData struct{
 	Message string `json:"message"`
 	Data any `json:"data"`
 }
+
+type JWTTokenPayload struct{
+	Token string `json:"token"`
+}
