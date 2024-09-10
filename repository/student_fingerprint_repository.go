@@ -97,8 +97,7 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 	if err := json.NewDecoder(*reader).Decode(&studentCred); err != nil {
 		return fmt.Errorf("invalid studentcredentials")
 	}
-	var queryString = fmt.Sprintf("DELETE FROM %s WHERE student_id=$1" , studentCred.UnitID)
-	if _ , err := sfr.db.Exec(queryString , studentCred.StudentID); err != nil {
+	if _ , err := sfr.db.Exec("DELETE FROM fingerprintdata WHERE student_id=$1" , studentCred.StudentID); err != nil {
 		return fmt.Errorf("unable to delete student")
 	}
 	return nil
