@@ -31,7 +31,7 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 	newStudent.StudentID = uuid.New().String()
 	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_name , student_usn , department) VALUES($1 , $2 , $3 , $4)",newStudent.UnitID)
 	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
-		return fmt.Errorf("unable to add the student deatils")
+		return err
 	}
 	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , unit_id , fingerprint) VALUES($1 , $2 , $3)",newStudent.StudentID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
 		return fmt.Errorf("unable to add the student fingerprint details")
