@@ -18,7 +18,7 @@ func UserRoutes(db *sql.DB , mut *sync.Mutex , router *mux.Router){
 	repos := repository.NewStudentFingerprintRepo(db , mut)
 	conts := controllers.NewStudentFingerprintController(repos)
 
-	router.HandleFunc("/users/register" , conts.RegisterStudentController).Methods("POST")
+	router.HandleFunc("/users/registerstudent" , conts.RegisterStudentController).Methods("POST")
 	router.HandleFunc("/users/fetchstudents" , conts.FetchStudentDetailsController).Methods("POST")
 	router.HandleFunc("/users/studentslog" , conts.FetchStudentLogHistory).Methods("POST")
 	router.HandleFunc("/users/deletestudent",conts.DeleteStudentController).Methods("POST")
