@@ -56,7 +56,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	var student models.StudentDetailsModel
 	var students []models.StudentDetailsModel
 	for res.Next(){
-		if err := res.Scan(&student.StudentName , &student.StudentUSN); err != nil {
+		if err := res.Scan(&student.StudentID,&student.StudentName , &student.StudentUSN); err != nil {
 			return nil,fmt.Errorf("unable to add students")
 		}
 		students = append(students, student)
