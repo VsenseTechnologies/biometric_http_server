@@ -59,6 +59,9 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 		}
 	}
 
+	fmt.Println(reqSFDs)
+	fmt.Println(dbSFDs)
+
 	return dbSFDs , nil
 }
 
