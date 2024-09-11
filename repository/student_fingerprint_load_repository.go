@@ -24,6 +24,7 @@ func NewStudentFingerprintDataRepo(db *sql.DB , mut *sync.Mutex) *StudentFingerp
 
 func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models.StudentFingerprintData , error){
 	var reqSFDs []models.StudentFingerprintData
+	var dbSFDs []models.StudentFingerprintData
 	var dbSFD models.StudentFingerprintData
 
 	if err := json.NewDecoder(*reader).Decode(&reqSFDs); err != nil {
@@ -46,6 +47,8 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 			if dbSFD.StudentID == id.StudentID {
 				reqSFDs = removeElement(reqSFDs , i)
 				break
+			}else{
+				 dbSFDs = append(dbSFDs, dbSFD)
 			}
 		}
 	} 
@@ -54,7 +57,7 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 		return nil , res.Err()
 	}
 
-	return reqSFDs , nil
+	return dbSFDs , nil
 }
 
 func removeElement(slice []models.StudentFingerprintData, index int) []models.StudentFingerprintData {
