@@ -64,15 +64,8 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 		}
 	}
 
-	jsonList , err := json.Marshal(dbSFD)
-	if err != nil {
-		return nil , err
-	}
 
-	err = sfdr.rdb.Set(*sfdr.ctx , "load" , jsonList , 0).Err()
-	if err != nil {
-		return nil , err
-	}
+	
 
 	return dbSFDs , nil
 }
