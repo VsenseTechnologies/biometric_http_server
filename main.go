@@ -33,7 +33,7 @@ func main(){
 	defer db.Close()
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "redis://159.65.221.81:6379",
+		Addr: "159.65.221.81:6379",
 		Password: "",
 		DB: 0,
 	})
