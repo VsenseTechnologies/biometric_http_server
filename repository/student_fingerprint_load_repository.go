@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"sync"
 
@@ -30,6 +31,8 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 		return nil , err
 	}
 
+	fmt.Println(reqSFDs)
+
 	res , err := sfdr.db.Query("SELECT student_id , unit_id , fingerprint FROM fingerprintdata WHERE unit_id=$1",reqSFDs[0].UnitID)
 	if err != nil {
 		return nil,err
@@ -37,7 +40,7 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 	defer res.Close()
 
 	for res.Next(){
-		if err := res.Scan(&dbSFD.StudentID , &dbSFD.UnitID); err != nil {
+		if err := res.Scan(&dbSFD.StudentID , &dbSFD.UnitID , &dbSFD.FingerprintData); err != nil {
 			return nil , err
 		}
 		for _ , id := range reqSFDs {
