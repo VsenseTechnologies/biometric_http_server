@@ -46,10 +46,10 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 		for i , id := range reqSFDs {
 			if dbSFD.StudentID != id.StudentID {
 				dbSFDs = append(dbSFDs , dbSFD)
-				removeElement(reqSFDs , i)
+				reqSFDs = removeElement(reqSFDs , i)
 				break
 			}else{
-				removeElement(reqSFDs , i)
+				reqSFDs = removeElement(reqSFDs , i)
 			}
 		}
 	} 
