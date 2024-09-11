@@ -1,30 +1,24 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"sync"
 
-	"github.com/go-redis/redis/v8"
 	"vsensetech.in/go_fingerprint_server/models"
 )
 
 type StudentFingerprintDataRepo struct {
 	db *sql.DB
 	mut *sync.Mutex
-	rdb *redis.Client
-	ctx *context.Context
 }
 
-func NewStudentFingerprintDataRepo(db *sql.DB , mut *sync.Mutex , rdb *redis.Client , ctx *context.Context) *StudentFingerprintDataRepo {
+func NewStudentFingerprintDataRepo(db *sql.DB , mut *sync.Mutex) *StudentFingerprintDataRepo {
 	return &StudentFingerprintDataRepo{
 		db,
 		mut,
-		rdb,
-		ctx,
 	}
 }
 
@@ -63,9 +57,6 @@ func(sfdr *StudentFingerprintDataRepo) LoadData(reader *io.ReadCloser) ([]models
 			}
 		}
 	}
-
-
-	
 
 	return dbSFDs , nil
 }
