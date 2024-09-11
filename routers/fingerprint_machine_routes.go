@@ -13,7 +13,7 @@ import (
 
 func FingerprintMachineRouters(db *sql.DB , mut *sync.Mutex , router *mux.Router , rdb *redis.Client , ctx *context.Context){ 
 	repo := repository.NewStudentFingerprintDataRepo(db , mut)
-	cont := controllers.NewStudentFingerprintDataController(repo , rdb , ctx)
+	cont := controllers.NewStudentFingerprintDataController(repo , rdb , *ctx)
 
 	router.HandleFunc("/users/load" , cont.LoadDataController).Methods("POST")
 }
