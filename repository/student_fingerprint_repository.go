@@ -30,12 +30,12 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 	}
 	newStudent.StudentID = uuid.New().String()
 
-	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , unit_id , fingerprint) VALUES($1 , $2 , $3)",newStudent.StudentID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
+	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , student_unit_id , unit_id , fingerprint) VALUES($1 , $2 , $3)",newStudent.StudentID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
 		return fmt.Errorf("unable to add the student fingerprint details")
 	}
 	
-	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_name , student_usn , department) VALUES($1 , $2 , $3 , $4)",newStudent.UnitID)
-	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
+	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_unit_id , student_name , student_usn , department) VALUES($1 , $2 , $3 , $4 , $5)",newStudent.UnitID)
+	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentUnitID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
 		return err
 	}
 	return nil
@@ -101,7 +101,7 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 		return fmt.Errorf("unable to delete student")
 	}
 	return nil
-}
+}  
 
 func(sfr *StudentFingerprintRepo) UpdateStudent(reader *io.ReadCloser) error {
 	var studentCred models.StudentOperationModel
