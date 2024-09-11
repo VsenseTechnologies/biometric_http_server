@@ -25,6 +25,7 @@ func NewStudentFingerprintDataController(m models.StudentFingerprintDataReposito
 }
 
 func (sfdc *StudentFingerprintDataController) LoadDataController(w http.ResponseWriter, r *http.Request) {
+    // Load data from repository
     data, err := sfdc.studentFingerprintDataRepository.LoadData(&r.Body)
     if err != nil {
         w.WriteHeader(http.StatusBadRequest)
@@ -32,20 +33,26 @@ func (sfdc *StudentFingerprintDataController) LoadDataController(w http.Response
         return
     }
 
-    // Marshal data to JSON before storing it in Redis
-    jsonData, err := json.Marshal(data)
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
-        return
-    }
+    // Create a Redis list key
+    redisKey := "load"
 
-    // Store JSON data in Redis
-    err = sfdc.rdb.Set(sfdc.ctx, "load", jsonData, 0).Err()
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
-        return
+    // Push each item in the data list into Redis
+    for _, item := range data {
+        // Marshal individual item to JSON
+        jsonData, err := json.Marshal(item)
+        if err != nil {
+            w.WriteHeader(http.StatusInternalServerError)
+            json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
+            return
+        }
+
+        // Push the JSON data to Redis list
+        _, err = sfdc.rdb.RPush(sfdc.ctx, redisKey, jsonData).Result()
+        if err != nil {
+            w.WriteHeader(http.StatusInternalServerError)
+            json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
+            return
+        }
     }
 
     // Respond with success and include the data
