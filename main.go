@@ -32,6 +32,7 @@ func main(){
 	}
 	defer db.Close()
 
+	//Redis Connection
 	rdb := redis.NewClient(&redis.Options{
 		Addr: "159.65.221.81:6379",
 		Password: "",
