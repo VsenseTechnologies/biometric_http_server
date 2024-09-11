@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
 	"sync"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/lpernett/godotenv"
 	"vsensetech.in/go_fingerprint_server/database"
@@ -29,6 +31,14 @@ func main(){
 		log.Println(err.Error())
 	}
 	defer db.Close()
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr: "redis://159.65.221.81/",
+		Password: "",
+		DB: 0,
+	})
+
+	ctx := context.Background()
 	
 	//Declaring Router and Mutex
 	router  := mux.NewRouter()
@@ -41,7 +51,7 @@ func main(){
 	routers.InitRouter(db, router)
 	routers.AdminRouters(db, mut, router)
 	routers.UserRoutes(db , mut , router)
-	routers.FingerprintMachineRouters(db , mut , router)
+	routers.FingerprintMachineRouters(db , mut , router , rdb , &ctx)
 	
 	
 	//Starting The Server
