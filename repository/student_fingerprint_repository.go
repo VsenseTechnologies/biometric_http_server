@@ -147,15 +147,18 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 		return fmt.Errorf("unable to delete student")
 	}
 
-	data , err := json.Marshal(map[string]string{
-		"student_id" : studentCred.StudentID,
-		"unit_id" : studentCred.UnitID,
+	data , err := json.Marshal(map[string][]map[string]string{
+		studentCred.UnitID: {
+			{
+				"student_id": studentCred.StudentID,
+			},
+		},
 	})
 	if err != nil {
 		return err
 	}
 
-	if _ , err := sfr.rdb.Do(sfr.ctx , "JSON.SET" , "data:1" , "$" , data).Result(); err != nil {
+	if _ , err := sfr.rdb.Do(sfr.ctx , "JSON.ARRAPPEND" , "deletes" , "$" , data).Result(); err != nil {
 		return nil
 	}
 	return nil
