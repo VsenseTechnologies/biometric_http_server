@@ -140,7 +140,7 @@ func(sfr *StudentFingerprintRepo) UpdateStudent(reader *io.ReadCloser) error {
 	}
 	var queryString = fmt.Sprintf("UPDATE %s SET student_name=$1 , student_usn=$2 WHERE student_id=$3" , studentCred.UnitID) 
 	if _ , err := sfr.db.Exec(queryString , studentCred.StudentName , studentCred.StudentUSN , studentCred.StudentID); err != nil {
-		return err
+		return fmt.Errorf("unable to update student")
 	}
 	return nil
 }
