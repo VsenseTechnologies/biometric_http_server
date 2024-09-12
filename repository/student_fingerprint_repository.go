@@ -24,28 +24,48 @@ func NewStudentFingerprintRepo(db *sql.DB , mut *sync.Mutex) *StudentFingerprint
 }
 
 func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
+	// Locking the process to prevent crashing
+	sfr.mut.Lock()
+	defer sfr.mut.Unlock()
+
+	// Creating data models to store the data
 	var newStudent models.StudentFingerprintRegistrationModel
+
+	// Decoding the json data and storing it to the data model
 	if err := json.NewDecoder(*reader).Decode(&newStudent); err != nil {
 		return fmt.Errorf("invalid credentials")
 	}
+
+	// Generating new unique id for student
 	newStudent.StudentID = uuid.New().String()
 
+	// Inserting fingerprint data to the Student fingerprint table
 	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , student_unit_id , unit_id , fingerprint) VALUES($1 , $2 , $3)",newStudent.StudentID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
 		return fmt.Errorf("unable to add the student fingerprint details")
 	}
 	
+	// Inserting Student fingerprint data on to the machine table
 	var queryString = fmt.Sprintf("INSERT INTO %s(student_id , student_unit_id , student_name , student_usn , department) VALUES($1 , $2 , $3 , $4 , $5)",newStudent.UnitID)
 	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentUnitID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
-		return err
+		return fmt.Errorf("unable to add data to machine")
 	}
 	return nil
 }
 
 func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]models.StudentDetailsModel , error){
+	// Locking the process to prevent crashing
+	sfr.mut.Lock()
+	defer sfr.mut.Unlock()
+
+	// Creating data models to store the data
 	var unit models.FingerprintMachinesModel
+
+	// Decoding the json data and storing on to the data model
 	if err := json.NewDecoder(*reader).Decode(&unit); err != nil {
 		return nil,fmt.Errorf("invalid unit")
 	}
+
+	// Querying the student details from the machine table
 	var queryString = fmt.Sprintf("SELECT student_id , student_name , student_usn FROM %s", unit.UnitID)
 	res , err := sfr.db.Query(queryString)
 	if err != nil {
@@ -53,6 +73,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	}
 	defer res.Close()
 
+	// Creating data models to store data
 	var student models.StudentDetailsModel
 	var students []models.StudentDetailsModel
 	for res.Next(){
@@ -68,10 +89,19 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 }
 
 func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) ([]models.StudentLogHistoryModel , error) {
+	// Locking the process to prevent crashing
+	sfr.mut.Lock()
+	defer sfr.mut.Unlock()
+
+	// Creating data model to store data
 	var student models.StudentDetailsModel
+
+	// Decoding the json data and storing on to the data model
 	if err := json.NewDecoder(*reader).Decode(&student); err != nil {
 		return nil,fmt.Errorf("invalid studentID")
 	}
+
+	// Executing the query to get data from database
 	res , err := sfr.db.Query("SELECT login , logout , date FROM attendence WHERE student_id=$1",student.StudentID)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch loghistory")
@@ -110,7 +140,7 @@ func(sfr *StudentFingerprintRepo) UpdateStudent(reader *io.ReadCloser) error {
 	}
 	var queryString = fmt.Sprintf("UPDATE %s SET student_name=$1 , student_usn=$2 WHERE student_id=$3" , studentCred.UnitID) 
 	if _ , err := sfr.db.Exec(queryString , studentCred.StudentName , studentCred.StudentUSN , studentCred.StudentID); err != nil {
-		return fmt.Errorf("unable to update student")
+		return err
 	}
 	return nil
 }
