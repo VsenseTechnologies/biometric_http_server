@@ -1,12 +1,14 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"sync"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"vsensetech.in/go_fingerprint_server/models"
 )
@@ -14,12 +16,16 @@ import (
 type StudentFingerprintRepo struct{
 	db *sql.DB
 	mut *sync.Mutex
+	rdb *redis.Client
+	ctx context.Context
 }
 
-func NewStudentFingerprintRepo(db *sql.DB , mut *sync.Mutex) *StudentFingerprintRepo {
+func NewStudentFingerprintRepo(db *sql.DB , mut *sync.Mutex , rdb *redis.Client , ctx context.Context) *StudentFingerprintRepo {
 	return &StudentFingerprintRepo{
 		db,
 		mut,
+		rdb,
+		ctx,
 	}
 }
 
@@ -108,6 +114,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 	}
 	defer res.Close()
 
+	// Creating data models for storing data
 	var log models.StudentLogHistoryModel
 	var logs []models.StudentLogHistoryModel
 	for res.Next(){
@@ -123,21 +130,46 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 }
 
 func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
+	// Locking the process to prevent crashing
+	sfr.mut.Lock()
+	defer sfr.mut.Unlock()
+
+	// Creating models to store data
 	var studentCred models.StudentOperationModel
+
+	// Decoding the json data and storing it on to the model
 	if err := json.NewDecoder(*reader).Decode(&studentCred); err != nil {
 		return fmt.Errorf("invalid studentcredentials")
 	}
+
+	// Executing the delete query and deleting the data
 	if _ , err := sfr.db.Exec("DELETE FROM fingerprintdata WHERE student_id=$1" , studentCred.StudentID); err != nil {
 		return fmt.Errorf("unable to delete student")
+	}
+
+	if _ , err := sfr.rdb.Do(sfr.ctx , "JSON.SET" , "data:1" , "$" , map[string]string{
+		"student_id" : studentCred.StudentID,
+		"unit_id" : studentCred.UnitID,
+	}).Result(); err != nil {
+		return nil
 	}
 	return nil
 }  
 
 func(sfr *StudentFingerprintRepo) UpdateStudent(reader *io.ReadCloser) error {
+	// Locking the process to prevent crashing
+	sfr.mut.Lock()
+	defer sfr.mut.Unlock()
+
+	// Creating student model to store the data
 	var studentCred models.StudentOperationModel
+
+	// Decoding the json data and storing on to the model
 	if err := json.NewDecoder(*reader).Decode(&studentCred); err != nil {
 		return fmt.Errorf("invalid credentials")
 	}
+
+	// Querying the data and updating the details
 	var queryString = fmt.Sprintf("UPDATE %s SET student_name=$1 , student_usn=$2 WHERE student_id=$3" , studentCred.UnitID) 
 	if _ , err := sfr.db.Exec(queryString , studentCred.StudentName , studentCred.StudentUSN , studentCred.StudentID); err != nil {
 		return fmt.Errorf("unable to update student")
