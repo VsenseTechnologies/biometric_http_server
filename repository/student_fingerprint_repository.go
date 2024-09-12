@@ -158,7 +158,7 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 		return err
 	}
 
-	if _ , err := sfr.rdb.Do(sfr.ctx , "JSON.ARRAPPEND" , "deletes" , "$" , data).Result(); err != nil {
+	if _ , err := sfr.rdb.Do(sfr.ctx , "JSON.ARRAPPEND" , "deletes" , "$.vs24al001" , data).Result(); err != nil {
 		return nil
 	}
 	return nil
