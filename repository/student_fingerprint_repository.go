@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"go/types"
 	"io"
+	"log"
 	"sync"
 
 	"github.com/go-redis/redis/v8"
@@ -152,8 +154,24 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(res)
-	
+	var data []map[string]interface{}
+
+	switch v := res.(type){
+	case []byte:
+		if err := json.Unmarshal(v , data); err != nil {
+			return err
+		}
+	default:
+		log.Fatal("Unable to marshel data")
+	}
+
+	for _ , item := range data{
+		for key , _ := range item {
+			if(key == studentCred.UnitID){
+				 
+			}
+		}
+	}
 
 	return nil
 }  
