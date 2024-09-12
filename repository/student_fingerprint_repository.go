@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"go/types"
 	"io"
 	"log"
 	"sync"
@@ -168,7 +167,7 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 	for _ , item := range data{
 		for key , _ := range item {
 			if(key == studentCred.UnitID){
-				 
+				 fmt.Println(key)
 			}
 		}
 	}
