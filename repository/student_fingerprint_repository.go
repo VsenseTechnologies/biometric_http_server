@@ -145,7 +145,7 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 
 	// Executing the delete query and deleting the data
 	if _ , err := sfr.db.Exec("DELETE FROM fingerprintdata WHERE student_id=$1" , studentCred.StudentID); err != nil {
-		return fmt.Errorf("unable to delete student")
+		return err
 	}
 
 
@@ -157,7 +157,7 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 
 	switch v := res.(type){
 	case []byte:
-		if err := json.Unmarshal(v , data); err != nil {
+		if err := json.Unmarshal(v , &data); err != nil {
 			return err
 		}
 	default:
@@ -165,7 +165,7 @@ func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
 	}
 
 	for _ , item := range data{
-		for key , _ := range item {
+		for key  := range item {
 			if(key == studentCred.UnitID){
 				 fmt.Println(key)
 			}
