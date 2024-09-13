@@ -56,6 +56,18 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 		return fmt.Errorf("unable to add data to machine")
 	}
 
+	data , err := json.Marshal(map[string]string{
+		"student_unit_id": newStudent.StudentUnitID,
+		"unit_id": newStudent.UnitID,
+	})
+	if err != nil {
+		return err
+	}
+
+	if _, err = sfr.rdb.Do(sfr.ctx, "JSON.ARRAPPEND", "inserts", "$."+newStudent.UnitID, data).Result(); err != nil {
+		return err
+	}
+
 
 	return nil
 }
