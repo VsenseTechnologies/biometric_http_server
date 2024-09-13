@@ -149,9 +149,7 @@ func (sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
         return err
     }
 
-	data , err := json.Marshal(map[string]string{
-		"student_unit_id": studentCred.StudentUnitID,
-	})
+	data , err := json.Marshal(studentCred.StudentUnitID)
 	if err != nil {
 		return err
 	}
