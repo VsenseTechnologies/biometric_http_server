@@ -46,8 +46,8 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 	newStudent.StudentID = uuid.New().String()
 
 	// Inserting fingerprint data to the Student fingerprint table
-	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , student_unit_id , unit_id , fingerprint) VALUES($1 , $2 , $3)",newStudent.StudentID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
-		return fmt.Errorf("unable to add the student fingerprint details")
+	if _ , err := sfr.db.Exec("INSERT INTO fingerprintdata(student_id , student_unit_id , unit_id , fingerprint) VALUES($1 , $2 , $3 , $4)",newStudent.StudentID, newStudent.StudentUnitID , newStudent.UnitID , newStudent.FingerprintData); err != nil {
+		return err
 	}
 	
 	// Inserting Student fingerprint data on to the machine table
@@ -56,7 +56,7 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 		return fmt.Errorf("unable to add data to machine")
 	}
 
-	
+
 	return nil
 }
 
