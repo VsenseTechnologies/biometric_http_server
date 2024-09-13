@@ -72,12 +72,17 @@ func (umr *FingerprintMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 	if _, err := umr.db.Exec(query); err != nil {
     	return fmt.Errorf("unable to delete table")
 	}
-	if _, err := umr.db.Exec("DELETE FROM biometric WHERE unit_id=$1", machine.UnitID); err != nil {
-		return fmt.Errorf("unable to delete unit")
+
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "deletes" , "$"+machine.UnitID).Result(); err != nil {
+		return err
+	}
+	
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "inserts" , "$"+machine.UnitID).Result(); err != nil {
+		return err
 	}
 
-	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "deletes" , "$.",machine.UnitID).Result(); err != nil {
-		return err
+	if _, err := umr.db.Exec("DELETE FROM biometric WHERE unit_id=$1", machine.UnitID); err != nil {
+		return fmt.Errorf("unable to delete unit")
 	}
 	return nil
 }
@@ -91,6 +96,15 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 		return nil
 	}
 
+	
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.SET" , "deletes" , "$"+newMachine.UnitID , "[]").Result(); err != nil {
+		return err
+	}
+
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.SET" , "inserts" , "$"+newMachine.UnitID , "[]").Result(); err != nil {
+		return err
+	}
+
 
 	query := fmt.Sprintf("CREATE TABLE %s (student_id VARCHAR(100) , student_unit_id VARCHAR(100) NOT NULL, student_name VARCHAR(50) NOT NULL, student_usn VARCHAR(20) NOT NULL, department VARCHAR(20) NOT NULL , FOREIGN KEY (student_id) REFERENCES fingerprintdata(student_id)  ON DELETE CASCADE)", newMachine.UnitID)
 
@@ -100,10 +114,6 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 
 
 	if _, err := umr.db.Exec("INSERT INTO biometric(user_id , unit_id , online) VALUES($1 , $2 , $3)", newMachine.UserID, newMachine.UnitID, false); err != nil {
-		return err
-	}
-
-	if _ , err := umr.rdb.Do(umr.ctx,"JSON.SET" , "deletes" , "$"+newMachine.UnitID , "[]").Result(); err != nil {
 		return err
 	}
 
