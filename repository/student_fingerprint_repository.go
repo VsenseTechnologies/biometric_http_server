@@ -58,7 +58,7 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 
 	data , err := json.Marshal(map[string]string{
 		"student_unit_id": newStudent.StudentUnitID,
-		"unit_id": newStudent.UnitID,
+		"fingerprint_data": newStudent.FingerprintData,
 	})
 	if err != nil {
 		return err

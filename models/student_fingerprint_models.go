@@ -9,7 +9,7 @@ type StudentFingerprintRegistrationModel struct {
 	StudentUSN      string `json:"student_usn"`
 	Department      string `json:"department"`
 	UnitID          string `json:"unit_id"`
-	FingerprintData any    `json:"fingerprint_data"`
+	FingerprintData string    `json:"fingerprint_data"`
 }
 
 type StudentDetailsModel struct {
