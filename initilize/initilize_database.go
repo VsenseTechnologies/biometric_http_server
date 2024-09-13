@@ -1,20 +1,26 @@
 package initilize
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-redis/redis/v8"
 	"vsensetech.in/go_fingerprint_server/payload"
 )
 
 type Init struct{
 	db *sql.DB
+	rdb *redis.Client
+	ctx context.Context
 }
 
-func NewInitInstance(db *sql.DB) *Init{
+func NewInitInstance(db *sql.DB , rdb *redis.Client , ctx context.Context) *Init{
 	return &Init{
 		db,
+		rdb,
+		ctx,
 	}
 }
 
@@ -46,4 +52,11 @@ func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
+}
+
+func(i *Init) initilizeRedis(w http.ResponseWriter , r *http.Request){
+	if _ , err := i.rdb.Do(i.ctx , "JSON.SET" , "deletes" , "$" , "{}").Result(); err != nil {
+		w.WriteHeader(http.StatusBadRequest) 
+	}
+	if _ , err  
 }
