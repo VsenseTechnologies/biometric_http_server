@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"sync"
 
 	"github.com/go-redis/redis/v8"
@@ -130,50 +129,64 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 	return logs , nil
 }
 
-func(sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
-	// Locking the process to prevent crashing
-	sfr.mut.Lock()
-	defer sfr.mut.Unlock()
+func (sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
+    // Locking the process to prevent crashing
+    sfr.mut.Lock()
+    defer sfr.mut.Unlock()
 
-	// Creating models to store data
-	var studentCred models.StudentOperationModel
+    // Creating models to store data
+    var studentCred models.StudentOperationModel
 
-	// Decoding the json data and storing it on to the model
-	if err := json.NewDecoder(*reader).Decode(&studentCred); err != nil {
-		return fmt.Errorf("invalid studentcredentials")
-	}
+    // Decoding the JSON data and storing it into the model
+    if err := json.NewDecoder(*reader).Decode(&studentCred); err != nil {
+        return fmt.Errorf("invalid student credentials: %w", err)
+    }
 
-	// Executing the delete query and deleting the data
-	if _ , err := sfr.db.Exec("DELETE FROM fingerprintdata WHERE student_id=$1" , studentCred.StudentID); err != nil {
-		return err
-	}
+    // Executing the delete query and deleting the data
+    if _, err := sfr.db.Exec("DELETE FROM fingerprintdata WHERE student_id=$1", studentCred.StudentID); err != nil {
+        return err
+    }
 
+    // Retrieve the JSON data from Redis
+    res, err := sfr.rdb.Do(sfr.ctx, "JSON.GET", "deletes", "$").Result()
+    if err != nil {
+        return err
+    }
 
-	res , err := sfr.rdb.Do(sfr.ctx , "JSON.GET" , "deletes" , "$").Result()
-	if err != nil {
-		return err
-	}
-	var data []map[string]interface{}
+    var data map[string][]map[string]string
 
-	switch v := res.(type){
-	case []byte:
-		if err := json.Unmarshal(v , &data); err != nil {
-			return err
-		}
-	default:
-		log.Fatal("Unable to marshel data")
-	}
+    // Unmarshal the data based on its type
+    switch v := res.(type) {
+    case string:
+        // If result is a string (JSON encoded as string), convert it to []byte
+        if err := json.Unmarshal([]byte(v), &data); err != nil {
+            return fmt.Errorf("failed to unmarshal JSON from string: %w", err)
+        }
+    case []byte:
+        // If result is []byte, directly unmarshal it
+        if err := json.Unmarshal(v, &data); err != nil {
+            return fmt.Errorf("failed to unmarshal JSON from byte slice: %w", err)
+        }
+    default:
+        return fmt.Errorf("unexpected result type: %T", v)
+    }
 
-	for _ , item := range data{
-		for key  := range item {
-			if(key == studentCred.UnitID){
-				 fmt.Println(key)
-			}
-		}
-	}
+    // Process the data
+    if vs24al002, ok := data["vs24al002"]; ok {
+        for _, item := range vs24al002 {
+            for key, value := range item {
+                if key == studentCred.UnitID {
+                    fmt.Printf("Found unitID: %s with value: %s\n", key, value)
+                }
+            }
+        }
+    } else {
+        return fmt.Errorf("key 'vs24al002' not found in the data")
+    }
 
-	return nil
-}  
+    return nil
+}
+
 
 func(sfr *StudentFingerprintRepo) UpdateStudent(reader *io.ReadCloser) error {
 	// Locking the process to prevent crashing
