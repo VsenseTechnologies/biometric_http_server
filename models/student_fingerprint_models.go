@@ -4,18 +4,19 @@ import "io"
 
 type StudentFingerprintRegistrationModel struct {
 	StudentID       string `json:"student_id"`
+	StudentUnitID   string `json:"student_unit_id"`
 	StudentName     string `json:"student_name"`
 	StudentUSN      string `json:"student_usn"`
 	Department      string `json:"department"`
 	UnitID          string `json:"unit_id"`
 	FingerprintData any    `json:"fingerprint_data"`
-	StudentUnitID   string `json:"student_unit_id"`
 }
 
 type StudentDetailsModel struct {
-	StudentID   string `json:"student_id"`
-	StudentName string `json:"student_name"`
-	StudentUSN  string `json:"student_usn"`
+	StudentID     string `json:"student_id"`
+	StudentUnitID string `json:"student_unit_id"`
+	StudentName   string `json:"student_name"`
+	StudentUSN    string `json:"student_usn"`
 }
 
 type StudentLogHistoryModel struct {
@@ -26,6 +27,7 @@ type StudentLogHistoryModel struct {
 type StudentOperationModel struct {
 	StudentID   string `json:"student_id"`
 	UnitID      string `json:"unit_id"`
+	StudentUnitID string `json:"student_unit_id"`
 	StudentName string `json:"student_name"`
 	StudentUSN  string `json:"student_usn"`
 }

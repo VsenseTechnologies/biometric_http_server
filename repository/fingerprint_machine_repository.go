@@ -73,11 +73,11 @@ func (umr *FingerprintMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
     	return fmt.Errorf("unable to delete table")
 	}
 
-	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "deletes" , "$"+machine.UnitID).Result(); err != nil {
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "deletes" , "$" ,machine.UnitID).Result(); err != nil {
 		return err
 	}
-	
-	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "inserts" , "$"+machine.UnitID).Result(); err != nil {
+
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "inserts" , "$" ,machine.UnitID).Result(); err != nil {
 		return err
 	}
 

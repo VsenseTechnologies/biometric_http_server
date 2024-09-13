@@ -55,6 +55,8 @@ func(sfr *StudentFingerprintRepo) RegisterStudent(reader *io.ReadCloser) error {
 	if _ , err := sfr.db.Exec(queryString , newStudent.StudentID , newStudent.StudentUnitID , newStudent.StudentName , newStudent.StudentUSN , newStudent.Department); err != nil {
 		return fmt.Errorf("unable to add data to machine")
 	}
+
+	
 	return nil
 }
 
@@ -72,7 +74,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	}
 
 	// Querying the student details from the machine table
-	var queryString = fmt.Sprintf("SELECT student_id , student_name , student_usn FROM %s", unit.UnitID)
+	var queryString = fmt.Sprintf("SELECT student_id , student_name , student_usn , student_unit_id FROM %s", unit.UnitID)
 	res , err := sfr.db.Query(queryString)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch student details")
@@ -83,7 +85,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	var student models.StudentDetailsModel
 	var students []models.StudentDetailsModel
 	for res.Next(){
-		if err := res.Scan(&student.StudentID,&student.StudentName , &student.StudentUSN); err != nil {
+		if err := res.Scan(&student.StudentID,&student.StudentName , &student.StudentUSN , &student.StudentUnitID); err != nil {
 			return nil,fmt.Errorf("unable to add students")
 		}
 		students = append(students, student)
@@ -147,6 +149,10 @@ func (sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
         return err
     }
 
+	sfr.rdb.Do(sfr.ctx , "JSON.ARRAPPEND" , "deletes" , "$"+studentCred.UnitID , map[string]string{
+		"student_unit_id": studentCred.StudentUnitID,
+	})
+  
     return nil
 }
 
