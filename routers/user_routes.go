@@ -12,7 +12,7 @@ import (
 )
 
 func UserRoutes(db *sql.DB , mut *sync.Mutex , router *mux.Router , rdb *redis.Client , ctx context.Context){
-	repo := repository.NewFingerprintMachineRepo(db , mut)
+	repo := repository.NewFingerprintMachineRepo(db , mut , rdb , ctx)
 	cont := controllers.NewFingerprintMachineController(repo)
 
 	router.HandleFunc("/users/getmachines" , cont.FetchAllMachinesController).Methods("POST")

@@ -147,43 +147,6 @@ func (sfr *StudentFingerprintRepo) DeleteStudent(reader *io.ReadCloser) error {
         return err
     }
 
-    // Retrieve the JSON data from Redis
-    res, err := sfr.rdb.Do(sfr.ctx, "JSON.GET", "deletes", "$").Result()
-    if err != nil {
-        return err
-    }
-
-    var data map[string][]map[string]string
-
-    // Unmarshal the data based on its type
-    switch v := res.(type) {
-    case string:
-        // If result is a string (JSON encoded as string), convert it to []byte
-        if err := json.Unmarshal([]byte(v), &data); err != nil {
-            return fmt.Errorf("failed to unmarshal JSON from string: %w", err)
-        }
-    case []byte:
-        // If result is []byte, directly unmarshal it
-        if err := json.Unmarshal(v, &data); err != nil {
-            return fmt.Errorf("failed to unmarshal JSON from byte slice: %w", err)
-        }
-    default:
-        return fmt.Errorf("unexpected result type: %T", v)
-    }
-
-    // Process the data
-    if vs24al002, ok := data["vs24al002"]; ok {
-        for _, item := range vs24al002 {
-            for key, value := range item {
-                if key == studentCred.UnitID {
-                    fmt.Printf("Found unitID: %s with value: %s\n", key, value)
-                }
-            }
-        }
-    } else {
-        return fmt.Errorf("key 'vs24al002' not found in the data")
-    }
-
     return nil
 }
 

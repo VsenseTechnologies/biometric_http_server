@@ -1,24 +1,30 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"sync"
 
+	"github.com/go-redis/redis/v8"
 	"vsensetech.in/go_fingerprint_server/models"
 )
 
 type FingerprintMachineRepo struct {
 	db  *sql.DB
 	mut *sync.Mutex
+	rdb *redis.Client
+	ctx context.Context
 }
 
-func NewFingerprintMachineRepo(db *sql.DB, mut *sync.Mutex) *FingerprintMachineRepo {
+func NewFingerprintMachineRepo(db *sql.DB, mut *sync.Mutex , rdb *redis.Client , ctx context.Context) *FingerprintMachineRepo {
 	return &FingerprintMachineRepo{
 		db,
 		mut,
+		rdb,
+		ctx,
 	}
 }
 
@@ -69,6 +75,10 @@ func (umr *FingerprintMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 	if _, err := umr.db.Exec("DELETE FROM biometric WHERE unit_id=$1", machine.UnitID); err != nil {
 		return fmt.Errorf("unable to delete unit")
 	}
+
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "deletes" , "$.",machine.UnitID).Result(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -92,5 +102,11 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 	if _, err := umr.db.Exec("INSERT INTO biometric(user_id , unit_id , online) VALUES($1 , $2 , $3)", newMachine.UserID, newMachine.UnitID, false); err != nil {
 		return err
 	}
+
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.SET" , "deletes" , "$.",newMachine.UnitID , "[]").Result(); err != nil {
+		return err
+	}
+
+
 	return nil
 }
