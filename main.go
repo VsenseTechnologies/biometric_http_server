@@ -34,7 +34,7 @@ func main(){
 
 	//Redis Connection
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "159.65.221.81:6379",
+		Addr: "159.89.49.40:8001",
 		Password: "",
 		DB: 0,
 	})
@@ -49,7 +49,7 @@ func main(){
 	router.Use(middlewares.RouteMiddleware)
 	router.Use(middlewares.JwtMiddleware)
 	routers.AuthRouter(db , mut, router)
-	routers.InitRouter(db, router)
+	routers.InitRouter(db, router , rdb , ctx)
 	routers.AdminRouters(db, mut, router , rdb , ctx)
 	routers.UserRoutes(db , mut , router , rdb , ctx)
 	routers.FingerprintMachineRouters(db , mut , router , rdb , &ctx)
