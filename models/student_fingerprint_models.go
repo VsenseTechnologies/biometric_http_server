@@ -9,7 +9,7 @@ type StudentFingerprintRegistrationModel struct {
 	StudentUSN      string `json:"student_usn"`
 	Department      string `json:"department"`
 	UnitID          string `json:"unit_id"`
-	FingerprintData string    `json:"fingerprint_data"`
+	FingerprintData string `json:"fingerprint_data"`
 }
 
 type StudentDetailsModel struct {
@@ -17,6 +17,7 @@ type StudentDetailsModel struct {
 	StudentUnitID string `json:"student_unit_id"`
 	StudentName   string `json:"student_name"`
 	StudentUSN    string `json:"student_usn"`
+	Department    string `json:"department"`
 }
 
 type StudentLogHistoryModel struct {
@@ -25,11 +26,11 @@ type StudentLogHistoryModel struct {
 	LogoutTime string `json:"logout"`
 }
 type StudentOperationModel struct {
-	StudentID   string `json:"student_id"`
-	UnitID      string `json:"unit_id"`
+	StudentID     string `json:"student_id"`
+	UnitID        string `json:"unit_id"`
 	StudentUnitID string `json:"student_unit_id"`
-	StudentName string `json:"student_name"`
-	StudentUSN  string `json:"student_usn"`
+	StudentName   string `json:"student_name"`
+	StudentUSN    string `json:"student_usn"`
 }
 
 type StudentFingerprintRepository interface {

@@ -86,7 +86,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	}
 
 	// Querying the student details from the machine table
-	var queryString = fmt.Sprintf("SELECT student_id , student_name , student_usn , student_unit_id FROM %s", unit.UnitID)
+	var queryString = fmt.Sprintf("SELECT student_id , student_name , student_usn , student_unit_id , department FROM %s", unit.UnitID)
 	res , err := sfr.db.Query(queryString)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch student details")
@@ -97,7 +97,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentDetails(reader *io.ReadCloser) ([]
 	var student models.StudentDetailsModel
 	var students []models.StudentDetailsModel
 	for res.Next(){
-		if err := res.Scan(&student.StudentID,&student.StudentName , &student.StudentUSN , &student.StudentUnitID); err != nil {
+		if err := res.Scan(&student.StudentID,&student.StudentName , &student.StudentUSN , &student.StudentUnitID , &student.Department); err != nil {
 			return nil,fmt.Errorf("unable to add students")
 		}
 		students = append(students, student)
