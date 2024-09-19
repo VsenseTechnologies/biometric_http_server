@@ -34,7 +34,7 @@ func main(){
 
 	//Redis Connection
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "206.189.131.53:6379",
+		Addr: "157.230.211.229:6379",
 		Password: "",
 		DB: 0,
 	})

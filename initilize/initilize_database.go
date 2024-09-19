@@ -52,9 +52,11 @@ func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
 	}
 	if _ , err := i.rdb.Do(i.ctx , "JSON.SET" , "deletes" , "$" , "{}").Result(); err != nil {
 		w.WriteHeader(http.StatusBadRequest) 
+		return
 	}
 	if _ , err := i.rdb.Do(i.ctx , "JSON.SET" , "inserts" , "$" , "{}").Result(); err != nil {
 		w.WriteHeader(http.StatusBadRequest) 
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
