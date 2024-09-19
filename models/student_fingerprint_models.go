@@ -31,6 +31,7 @@ type StudentOperationModel struct {
 	StudentUnitID string `json:"student_unit_id"`
 	StudentName   string `json:"student_name"`
 	StudentUSN    string `json:"student_usn"`
+	Department    string `json:"department"`
 }
 
 type StudentFingerprintRepository interface {
