@@ -25,4 +25,7 @@ func UserRoutes(db *sql.DB , mut *sync.Mutex , router *mux.Router , rdb *redis.C
 	router.HandleFunc("/users/studentslog" , conts.FetchStudentLogHistory).Methods("POST")
 	router.HandleFunc("/users/deletestudent",conts.DeleteStudentController).Methods("POST")
 	router.HandleFunc("/users/updatestudent" , conts.UpdateStudentController).Methods("POST")
+	reposit := repository.NewAttendenceRepo(db , mut)
+	control := controllers.NewAttendenceController(reposit)
+	router.HandleFunc("/users/download" , control.CreateAttendenceSheetController).Methods("POST")
 }
