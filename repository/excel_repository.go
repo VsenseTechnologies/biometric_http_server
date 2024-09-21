@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/xuri/excelize/v2"
-	// "vsensetech.in/go_fingerprint_server/models"
+	"vsensetech.in/go_fingerprint_server/models"
 )
 
 type AttendenceRepo struct {
@@ -50,22 +50,22 @@ func(ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*excelize
 	file.SetCellValue("Sheet1" , "A1" , "Name")
 	file.SetCellValue("Sheet1" , "B1" , "USN")
 
-	// res , err := ar.db.Query("SELECT student_name , student_usn FROM vs24al001")
-	// if err != nil {
-	// 	return err
-	// }
+	res , err := ar.db.Query("SELECT student_name , student_usn FROM vs24al001")
+	if err != nil {
+		return nil,err
+	}
 
-	// defer res.Close()
-	// var student models.AttendenceModel
-	// i := 2
-	// for res.Next(){
-	// 	if err := res.Scan(&student.StudentName , &student.StudentUSN); err != nil {
-	// 		return err
-	// 	}
-	// 	file.SetCellValue("Sheet1" , "A"+string(i) , student.StudentName)
-	// 	file.SetCellValue("Sheet1" , "B"+string(i) , student.StudentUSN)
-	// 	i++;
-	// }
+	defer res.Close()
+	var student models.AttendenceModel
+	i := 2
+	for res.Next(){
+		if err := res.Scan(&student.StudentName , &student.StudentUSN); err != nil {
+			return nil,err
+		}
+		file.SetCellValue("Sheet1" , "A"+string(i) , student.StudentName)
+		file.SetCellValue("Sheet1" , "B"+string(i) , student.StudentUSN)
+		i++;
+	}
 
 
 	file.SetActiveSheet(index)
