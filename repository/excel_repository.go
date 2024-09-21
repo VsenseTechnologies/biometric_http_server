@@ -55,7 +55,7 @@ func(ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*excelize
 	file.SetColWidth("Sheet1" , "B" , "B" , 30)
 	file.SetCellValue("Sheet1" , "A1" , "Name")
 	file.SetCellValue("Sheet1" , "B1" , "USN")
-	for j := 67 ; j <= 90 ; j++ {
+	for j := 67 ; j < 90 ; j++ {
 		file.SetColWidth("Sheet1" , string(j) , string(j) , 5)
 	}
 
@@ -78,8 +78,5 @@ func(ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*excelize
 
 
 	file.SetActiveSheet(index)
-	if err := file.SaveAs("Book1.xlsx"); err != nil {
-		fmt.Println(err)
-	}
 	return file,nil
 }
