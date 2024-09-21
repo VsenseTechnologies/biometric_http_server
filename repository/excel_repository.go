@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"strconv"
 	"sync"
 
 	"github.com/xuri/excelize/v2"
@@ -62,8 +63,8 @@ func(ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*excelize
 		if err := res.Scan(&student.StudentName , &student.StudentUSN); err != nil {
 			return nil,err
 		}
-		file.SetCellValue("Sheet1" , "A"+string(i) , student.StudentName)
-		file.SetCellValue("Sheet1" , "B"+string(i) , student.StudentUSN)
+		file.SetCellValue("Sheet1" , "A"+strconv.Itoa(i) , student.StudentName)
+		file.SetCellValue("Sheet1" , "B"+strconv.Itoa(i) , student.StudentUSN)
 		i++;
 	}
 
