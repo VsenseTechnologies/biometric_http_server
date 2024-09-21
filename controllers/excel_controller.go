@@ -19,8 +19,16 @@ func NewAttendenceController(attendenceRepository models.AttendenceRepository) *
 }
 
 func(ac *AttendenceController) CreateAttendenceSheetController(w http.ResponseWriter , r *http.Request){
-	if err := ac.attendenceRepository.CreateAttendenceSheet(&r.Body); err != nil {
+	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	w.Header().Set("Content-Disposition", "attachment;filename=Book1.xlsx")
+	w.Header().Set("File-Name", "Book1.xlsx")
+	f , err := ac.attendenceRepository.CreateAttendenceSheet(&r.Body); 
+	if err != nil {
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 	}
-	json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
+	err = f.Write(w)
+	if err != nil {
+		http.Error(w, "Unable to generate Excel file", http.StatusInternalServerError)
+		
+	}
 }
