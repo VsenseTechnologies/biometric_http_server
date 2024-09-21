@@ -14,6 +14,11 @@ type AttendenceModel struct {
 	Logout      string `json:"logout"`
 }
 
+type AttendenceBracket struct {
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+}
+
 type AttendenceRepository interface {
-	CreateAttendenceSheet(*io.ReadCloser) (*excelize.File,error)
+	CreateAttendenceSheet(*io.ReadCloser) (*excelize.File, error)
 }

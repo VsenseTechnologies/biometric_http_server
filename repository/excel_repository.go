@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,6 +26,10 @@ func NewAttendenceRepo(db *sql.DB , mut *sync.Mutex) *AttendenceRepo {
 
 func(ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*excelize.File , error) {
 	file := excelize.NewFile()
+	var bracket models.AttendenceBracket
+	if err := json.NewDecoder(*reader).Decode(&bracket); err != nil {
+		return nil,err
+	}
 	defer func(){
 		if err := file.Close(); err != nil {
 			fmt.Println(err.Error())
@@ -50,6 +55,9 @@ func(ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*excelize
 	file.SetColWidth("Sheet1" , "B" , "B" , 30)
 	file.SetCellValue("Sheet1" , "A1" , "Name")
 	file.SetCellValue("Sheet1" , "B1" , "USN")
+	for j := 67 ; j <= 90 ; j++ {
+		file.SetColWidth("Sheet1" , string(j) , string(j) , 5)
+	}
 
 	res , err := ar.db.Query("SELECT student_name , student_usn FROM vs24aiet001")
 	if err != nil {
