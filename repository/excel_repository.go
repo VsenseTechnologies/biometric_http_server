@@ -50,7 +50,7 @@ func(ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*excelize
 	file.SetCellValue("Sheet1" , "A1" , "Name")
 	file.SetCellValue("Sheet1" , "B1" , "USN")
 
-	res , err := ar.db.Query("SELECT student_name , student_usn FROM vs24al001")
+	res , err := ar.db.Query("SELECT student_name , student_usn FROM vs24aiet001")
 	if err != nil {
 		return nil,err
 	}
