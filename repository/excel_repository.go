@@ -123,7 +123,7 @@ type Times struct {
 // Fetch times from the 'times' table
 func FetchTimes(db *sql.DB) (Times, error) {
 	var times Times
-	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times LIMIT 1`
+	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times`
 	err := db.QueryRow(query).Scan(&times.MorningStart, &times.MorningEnd, &times.AfternoonStart, &times.AfternoonEnd, &times.EveningStart, &times.EveningEnd)
 	if err != nil {
 		return times, err
@@ -184,7 +184,7 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 
 // Determine attendance status based on login and logout times
 func determineAttendance(login, logout string, times Times) string {
-	// Parse times for comparison
+	// Parse the morning, afternoon, and evening times
 	// morningStart, _ := time.Parse("15:04", times.MorningStart)
 	morningEnd, _ := time.Parse("15:04", times.MorningEnd)
 	afternoonStart, _ := time.Parse("15:04", times.AfternoonStart)
@@ -192,21 +192,29 @@ func determineAttendance(login, logout string, times Times) string {
 	eveningStart, _ := time.Parse("15:04", times.EveningStart)
 	eveningEnd, _ := time.Parse("15:04", times.EveningEnd)
 
-	// Parse login/logout times
+	// Parse the login and logout times
 	loginTime, _ := time.Parse("15:04", login)
 	logoutTime, _ := time.Parse("15:04", logout)
 
-	// Check attendance conditions
+	// Check if the student was present for the full day (P)
 	if loginTime.Before(morningEnd) && logoutTime.After(eveningStart) && logoutTime.Before(eveningEnd) {
-		return "P" // Present for the full day
-	} else if loginTime.Before(morningEnd) && logoutTime.After(afternoonStart) && logoutTime.Before(afternoonEnd) {
-		return "MP" // Morning Present
-	} else if loginTime.After(afternoonStart) && logoutTime.Before(eveningEnd) {
-		return "AP" // Afternoon Present
-	} else {
-		return "NC" // Conflict
+		return "P" // Full-day Present
 	}
+
+	// Check for Morning Present (MP)
+	if loginTime.Before(morningEnd) && logoutTime.After(afternoonStart) && logoutTime.Before(afternoonEnd) {
+		return "MP" // Morning Present
+	}
+
+	// Check for Afternoon Present (AP)
+	if loginTime.After(afternoonStart) && logoutTime.Before(eveningEnd) {
+		return "AP" // Afternoon Present
+	}
+
+	// If none of the above conditions match, mark as NC (No Conflict)
+	return "NC" // Not Present or No Valid Attendance
 }
+
 
 
 // Helper function to map dates to Excel columns based on the startDate
