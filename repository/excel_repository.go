@@ -111,23 +111,16 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 	}
 	return nil
 }
-type Times struct {
-	MorningStart   string `json:"morning_start"`
-	MorningEnd     string `json:"morning_end"`
-	AfternoonStart string `json:"afternoon_start"`
-	AfternoonEnd   string `json:"afternoon_end"`
-	EveningStart   string `json:"evening_start"`
-	EveningEnd     string `json:"evening_end"`
-}
 
 // Fetch times from the 'times' table
-func FetchTimes(db *sql.DB) (Times, error) {
-	var times Times
-	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times`
+func FetchTimes(db *sql.DB) (models.Times, error) {
+	var times models.Times
+	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times` 
 	err := db.QueryRow(query).Scan(&times.MorningStart, &times.MorningEnd, &times.AfternoonStart, &times.AfternoonEnd, &times.EveningStart, &times.EveningEnd)
 	if err != nil {
 		return times, err
 	}
+	fmt.Println(times)
 	return times, nil
 }
 
@@ -201,7 +194,7 @@ func determineAttendance(login, logout string, times Times) string {
 		return "P" // Full-day Present
 	}
 
-	// Check for Morning Present (MP)
+	// Check for Morning Present (MP) 
 	if loginTime.Before(morningEnd) && logoutTime.After(afternoonStart) && logoutTime.Before(afternoonEnd) {
 		return "MP" // Morning Present
 	}
