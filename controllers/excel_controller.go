@@ -25,6 +25,7 @@ func(ac *AttendenceController) CreateAttendenceSheetController(w http.ResponseWr
 	f , err := ac.attendenceRepository.CreateAttendenceSheet(&r.Body); 
 	if err != nil {
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
+		return
 	}
 	err = f.Write(w)
 	if err != nil {

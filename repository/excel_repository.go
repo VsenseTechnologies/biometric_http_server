@@ -64,12 +64,12 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	if err != nil {
 		return nil , err
 	}
-	file , err = MarkAttendance(ar.db , file , students , "2024-10-01" , "2024-10-29")
+	update , err := MarkAttendance(ar.db , file , students , "2024-10-01" , "2024-10-29")
 	if err != nil {
 		return nil , err
 	}
 	file.SetActiveSheet(index)
-	return file, nil
+	return update, nil
 }
 
 func FetchStudents(db *sql.DB , unitId string) ([]models.AttendenceStudent,error) {
