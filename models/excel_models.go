@@ -20,6 +20,15 @@ type AttendenceStudent struct{
 	UnitID string `json:"unit_id"`
 }
 
+type Times struct{
+	MorningStart string `json:"morning_start"`
+	MorningEnd string `json:"morning_end"`
+	AfternoonStart string `json:"afternoon_start"`
+	AfternoonEnd string `json:"afternoon_end"`
+	EveningStart string `json:"evening_start"`
+	EveningEnd string `json:"evening_end"`
+}
+
 type AttendenceRepository interface {
 	CreateAttendenceSheet(*io.ReadCloser) (*excelize.File, error)
 }

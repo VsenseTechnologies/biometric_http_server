@@ -111,12 +111,37 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 	}
 	return nil
 }
+type Times struct {
+	MorningStart   string `json:"morning_start"`
+	MorningEnd     string `json:"morning_end"`
+	AfternoonStart string `json:"afternoon_start"`
+	AfternoonEnd   string `json:"afternoon_end"`
+	EveningStart   string `json:"evening_start"`
+	EveningEnd     string `json:"evening_end"`
+}
 
-// Mark attendance in the Excel file
+// Fetch times from the 'times' table
+func FetchTimes(db *sql.DB) (Times, error) {
+	var times Times
+	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times LIMIT 1`
+	err := db.QueryRow(query).Scan(&times.MorningStart, &times.MorningEnd, &times.AfternoonStart, &times.AfternoonEnd, &times.EveningStart, &times.EveningEnd)
+	if err != nil {
+		return times, err
+	}
+	return times, nil
+}
+
+// Mark attendance in the Excel file with the new logic
 func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStudent, startDate string, endDate string) (*excelize.File, error) {
 	l := 2 // Starting row for attendance entries
+
+	// Fetch the times for attendance periods
+	times, err := FetchTimes(db)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, student := range data {
-		// Parameterized query for fetching attendance logs
 		query := `SELECT date, login, logout FROM attendence WHERE student_id = $1 AND date::date BETWEEN $2::date AND $3::date`
 		res, err := db.Query(query, student.StudentID, startDate, endDate)
 		if err != nil {
@@ -124,38 +149,65 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 		}
 		defer res.Close()
 
-		// Set student info (name, USN)
 		file.SetCellValue("Sheet1", "A"+strconv.Itoa(l), student.StudentName)
 		file.SetCellValue("Sheet1", "B"+strconv.Itoa(l), student.StudentUSN)
 
-		// Create a map to store attendance status for each date
-		attendanceMap := make(map[string]bool)
+		attendanceMap := make(map[string]string)
 
-		// Iterate over attendance logs for this student
 		for res.Next() {
 			var log models.AttendenceLogs
 			if err := res.Scan(&log.Date, &log.Login, &log.Logout); err != nil {
 				return nil, err
 			}
-			attendanceMap[log.Date] = true // Mark present for this date
+
+			// Determine attendance based on login/logout and the defined time ranges
+			status := determineAttendance(log.Login, log.Logout, times)
+			attendanceMap[log.Date] = status
 		}
 
-		// Mark each day as "P" or "A" based on attendance logs
+		// Mark each day with the corresponding attendance status
 		currentDate := startDate
 		for currentDate != endDate {
-			column := dateToColumn(currentDate, startDate) // Get the column for the current date
-			if attendanceMap[currentDate] {
-				file.SetCellValue("Sheet1", column+strconv.Itoa(l), "P") // Mark present
+			column := dateToColumn(currentDate, startDate)
+			if status, exists := attendanceMap[currentDate]; exists {
+				file.SetCellValue("Sheet1", column+strconv.Itoa(l), status)
 			} else {
 				file.SetCellValue("Sheet1", column+strconv.Itoa(l), "A") // Mark absent
 			}
-			currentDate = nextDay(currentDate) // Move to the next day
+			currentDate = nextDay(currentDate)
 		}
 
-		l++ // Move to the next row for the next student
+		l++ // Move to the next student
 	}
 	return file, nil
 }
+
+// Determine attendance status based on login and logout times
+func determineAttendance(login, logout string, times Times) string {
+	// Parse times for comparison
+	// morningStart, _ := time.Parse("15:04", times.MorningStart)
+	morningEnd, _ := time.Parse("15:04", times.MorningEnd)
+	afternoonStart, _ := time.Parse("15:04", times.AfternoonStart)
+	afternoonEnd, _ := time.Parse("15:04", times.AfternoonEnd)
+	eveningStart, _ := time.Parse("15:04", times.EveningStart)
+	eveningEnd, _ := time.Parse("15:04", times.EveningEnd)
+
+	// Parse login/logout times
+	loginTime, _ := time.Parse("15:04", login)
+	logoutTime, _ := time.Parse("15:04", logout)
+
+	// Check attendance conditions
+	if loginTime.Before(morningEnd) && logoutTime.After(eveningStart) && logoutTime.Before(eveningEnd) {
+		return "P" // Present for the full day
+	} else if loginTime.Before(morningEnd) && logoutTime.After(afternoonStart) && logoutTime.Before(afternoonEnd) {
+		return "MP" // Morning Present
+	} else if loginTime.After(afternoonStart) && logoutTime.Before(eveningEnd) {
+		return "AP" // Afternoon Present
+	} else {
+		return "NC" // Conflict
+	}
+}
+
 
 // Helper function to map dates to Excel columns based on the startDate
 func dateToColumn(date string, startDate string) string {
