@@ -174,20 +174,24 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 	}
 	return file, nil
 }
+func normalizeTime(t time.Time) time.Time {
+	return time.Date(0, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+}
 
-func determineAttendance(login, logout string, times models.Times) string {
-	// Parse the times from the Times struct
-	morningEnd, _ := time.Parse("15:04", times.MorningEnd)
-	afternoonStart, _ := time.Parse("15:04", times.AfternoonStart)
-	afternoonEnd, _ := time.Parse("15:04", times.AfternoonEnd)
-	eveningStart, _ := time.Parse("15:04", times.EveningStart)
-	eveningEnd, _ := time.Parse("15:04", times.EveningEnd)
+// Determine attendance status based on login and logout times
+func determineAttendance(login, logout string, times models.Times ) string {
+	// Parse the times from the Times struct with full hour:minute:second format
+	morningEnd, _ := time.Parse("15:04:05", times.MorningEnd)
+	afternoonStart, _ := time.Parse("15:04:05", times.AfternoonStart)
+	afternoonEnd, _ := time.Parse("15:04:05", times.AfternoonEnd)
+	eveningStart, _ := time.Parse("15:04:05", times.EveningStart)
+	eveningEnd, _ := time.Parse("15:04:05", times.EveningEnd)
 
-	// Parse the login and logout times
-	loginTime, _ := time.Parse("15:04", login)
-	logoutTime, _ := time.Parse("15:04", logout)
+	// Parse the login and logout times with full hour:minute:second format
+	loginTime, _ := time.Parse("15:04:05", login)
+	logoutTime, _ := time.Parse("15:04:05", logout)
 
-	// Normalize times to ignore the date component
+	// Normalize times to ignore the date component (comparing only time-of-day)
 	loginTime = normalizeTime(loginTime)
 	logoutTime = normalizeTime(logoutTime)
 	morningEnd = normalizeTime(morningEnd)
@@ -213,10 +217,6 @@ func determineAttendance(login, logout string, times models.Times) string {
 
 	// If none of the above conditions match, mark as NC (No Conflict)
 	return "NC" // Not Present or No Valid Attendance
-}
-
-func normalizeTime(t time.Time) time.Time {
-	return time.Date(0, 1, 1, t.Hour(), t.Minute(), 0, 0, time.UTC)
 }
 
 
