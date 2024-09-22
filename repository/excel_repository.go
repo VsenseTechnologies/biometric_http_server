@@ -176,7 +176,7 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 }
 
 // Determine attendance status based on login and logout times
-func determineAttendance(login, logout string, times Times) string {
+func determineAttendance(login, logout string, times models.Times) string {
 	// Parse the morning, afternoon, and evening times
 	// morningStart, _ := time.Parse("15:04", times.MorningStart)
 	morningEnd, _ := time.Parse("15:04", times.MorningEnd)
