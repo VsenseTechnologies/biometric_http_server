@@ -175,29 +175,33 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 	return file, nil
 }
 
-// Determine attendance status based on login and logout times
 func determineAttendance(login, logout string, times models.Times) string {
-	// Parse the morning, afternoon, and evening times
-	// morningStart, _ := time.Parse("15:04", times.MorningStart)
+	// Parse the times from the Times struct
 	morningEnd, _ := time.Parse("15:04", times.MorningEnd)
 	afternoonStart, _ := time.Parse("15:04", times.AfternoonStart)
 	afternoonEnd, _ := time.Parse("15:04", times.AfternoonEnd)
 	eveningStart, _ := time.Parse("15:04", times.EveningStart)
 	eveningEnd, _ := time.Parse("15:04", times.EveningEnd)
 
-	fmt.Print(morningEnd)
-	fmt.Print(afternoonStart)
-	fmt.Print(afternoonEnd)
 	// Parse the login and logout times
 	loginTime, _ := time.Parse("15:04", login)
 	logoutTime, _ := time.Parse("15:04", logout)
+
+	// Normalize times to ignore the date component
+	loginTime = normalizeTime(loginTime)
+	logoutTime = normalizeTime(logoutTime)
+	morningEnd = normalizeTime(morningEnd)
+	afternoonStart = normalizeTime(afternoonStart)
+	afternoonEnd = normalizeTime(afternoonEnd)
+	eveningStart = normalizeTime(eveningStart)
+	eveningEnd = normalizeTime(eveningEnd)
 
 	// Check if the student was present for the full day (P)
 	if loginTime.Before(morningEnd) && logoutTime.After(eveningStart) && logoutTime.Before(eveningEnd) {
 		return "P" // Full-day Present
 	}
 
-	// Check for Morning Present (MP) 
+	// Check for Morning Present (MP)
 	if loginTime.Before(morningEnd) && logoutTime.After(afternoonStart) && logoutTime.Before(afternoonEnd) {
 		return "MP" // Morning Present
 	}
@@ -209,6 +213,10 @@ func determineAttendance(login, logout string, times models.Times) string {
 
 	// If none of the above conditions match, mark as NC (No Conflict)
 	return "NC" // Not Present or No Valid Attendance
+}
+
+func normalizeTime(t time.Time) time.Time {
+	return time.Date(0, 1, 1, t.Hour(), t.Minute(), 0, 0, time.UTC)
 }
 
 
