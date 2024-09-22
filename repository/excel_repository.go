@@ -185,6 +185,9 @@ func determineAttendance(login, logout string, times models.Times) string {
 	eveningStart, _ := time.Parse("15:04", times.EveningStart)
 	eveningEnd, _ := time.Parse("15:04", times.EveningEnd)
 
+	print(morningEnd)
+	print(afternoonStart)
+	print(afternoonEnd)
 	// Parse the login and logout times
 	loginTime, _ := time.Parse("15:04", login)
 	logoutTime, _ := time.Parse("15:04", logout)
