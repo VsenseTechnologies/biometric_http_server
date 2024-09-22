@@ -111,7 +111,7 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 	l := 2 // Starting row for attendance entries
 	for _, student := range data {
 		// Parameterized query for fetching attendance logs
-		query := `SELECT date, login, logout FROM attendence WHERE student_id = $1 AND date BETWEEN $2::date AND $3::date`
+		query := `SELECT date, login, logout FROM attendence WHERE student_id = $1 AND date::date BETWEEN $2::date AND $3::date`
 		res, err := db.Query(query, student.StudentID, startDate, endDate)
 		if err != nil {
 			return nil, err
