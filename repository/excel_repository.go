@@ -61,9 +61,12 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	file.SetColWidth("Sheet1", "B", "B", 30)
 	file.SetCellValue("Sheet1", "B1", "USN")
 
-	// Set column widths for attendance dates
-	for j := 67; j < 90; j++ {
-		file.SetColWidth("Sheet1", string(j), string(j), 5)
+	// Set date headers for the attendance sheet starting from column "C"
+	startDate := "2024-10-01"
+	endDate := "2024-10-29"
+	err = setAttendanceDateHeaders(file, startDate, endDate)
+	if err != nil {
+		return nil, err
 	}
 
 	// Fetch students
@@ -73,7 +76,7 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	}
 
 	// Mark attendance and update Excel file
-	update, err := MarkAttendance(ar.db, file, students, "2024-10-01", "2024-10-29")
+	update, err := MarkAttendance(ar.db, file, students, startDate, endDate)
 	if err != nil {
 		return nil, err
 	}
@@ -81,6 +84,76 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	file.SetActiveSheet(index)
 	return update, nil
 }
+
+// Set the date headers in the first row starting from column "C"
+func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate string) error {
+	// Parse the start and end dates
+	start, err := time.Parse("2006-01-02", startDate)
+	if err != nil {
+		return err
+	}
+	end, err := time.Parse("2006-01-02", endDate)
+	if err != nil {
+		return err
+	}
+
+	// Iterate through each date between startDate and endDate
+	col := 'C' // Starting from column "C"
+	for currentDate := start; !currentDate.After(end); currentDate = currentDate.AddDate(0, 0, 1) {
+		cell := string(col) + "1" // Row 1, starting from column "C"
+		file.SetCellValue("Sheet1", cell, currentDate.Format("2006-01-02"))
+		col++
+	}
+	return nil
+}
+
+func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStudent, startDate string, endDate string) (*excelize.File, error) {
+	l := 2 // Starting row for attendance entries
+	for _, student := range data {
+		// Parameterized query for fetching attendance logs
+		query := `SELECT date, login, logout FROM attendence WHERE student_id = $1 AND date BETWEEN $2::date AND $3::date`
+		res, err := db.Query(query, student.StudentID, startDate, endDate)
+		if err != nil {
+			return nil, err
+		}
+		defer res.Close()
+
+		// Set student info (name, USN)
+		file.SetCellValue("Sheet1", "A"+strconv.Itoa(l), student.StudentName)
+		file.SetCellValue("Sheet1", "B"+strconv.Itoa(l), student.StudentUSN)
+
+		// Iterate over attendance logs for this student
+		for res.Next() {
+			var log models.AttendenceLogs
+			if err := res.Scan(&log.Date, &log.Login, &log.Logout); err != nil {
+				return nil, err
+			}
+
+			// Convert log.Date to column letter (start from 'C')
+			column := dateToColumn(log.Date, startDate) // Updated to include startDate for column calculation
+			file.SetCellValue("Sheet1", column+strconv.Itoa(l), "P") // Mark as present
+		}
+
+		// Check for errors during iteration
+		if err := res.Err(); err != nil {
+			return nil, err
+		}
+
+		l++ // Move to the next row for the next student
+	}
+	return file, nil
+}
+
+// Helper function to map dates to Excel columns based on the startDate
+func dateToColumn(date string, startDate string) string {
+	baseDate, _ := time.Parse("2006-01-02", startDate)
+	targetDate, _ := time.Parse("2006-01-02", date)
+	diff := int(targetDate.Sub(baseDate).Hours() / 24)
+	return string(rune(67 + diff)) // 'C' is 67 in ASCII
+}
+
+
+
 
 func FetchStudents(db *sql.DB, unitId string) ([]models.AttendenceStudent, error) {
 	// Use parameterized query to prevent SQL injection
@@ -105,54 +178,4 @@ func FetchStudents(db *sql.DB, unitId string) ([]models.AttendenceStudent, error
 		return nil, err
 	}
 	return students, nil
-}
-
-func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStudent, startDate string, endDate string) (*excelize.File, error) {
-	l := 2 // Starting row for attendance entries
-	for _, student := range data {
-		// Parameterized query for fetching attendance logs
-		query := `SELECT date, login, logout FROM attendence WHERE student_id = $1 AND date::date BETWEEN $2::date AND $3::date`
-		res, err := db.Query(query, student.StudentID, startDate, endDate)
-		if err != nil {
-			return nil, err
-		}
-		defer res.Close()
-
-		// Set student info (name, USN)
-		file.SetCellValue("Sheet1", "A"+strconv.Itoa(l), student.StudentName)
-		file.SetCellValue("Sheet1", "B"+strconv.Itoa(l), student.StudentUSN)
-
-		// Iterate over attendance logs for this student
-		for res.Next() {
-			var log models.AttendenceLogs
-			if err := res.Scan(&log.Date, &log.Login, &log.Logout); err != nil {
-				return nil, err
-			}
-
-			// Convert log.Date to column letter (start from 'C')
-			// Example logic assumes attendance dates are mapped to columns starting from 'C'
-			column := dateToColumn(log.Date) // You need to implement this function
-			file.SetCellValue("Sheet1", column+strconv.Itoa(l), "P") // Mark as present
-		}
-
-		// Check for errors during iteration
-		if err := res.Err(); err != nil {
-			return nil, err
-		}
-
-		l++ // Move to the next row for the next student
-	}
-	return file, nil
-}
-
-// Helper function to map dates to Excel columns (e.g., 2024-10-01 to 'C', 2024-10-02 to 'D', etc.)
-func dateToColumn(date string) string {
-	// Logic to calculate which column to use based on the date (e.g., "2024-10-01" = "C", "2024-10-02" = "D", etc.)
-	// You need to map each date to a corresponding Excel column letter.
-	// This is a placeholder logic:
-	// Convert the date to an integer and map it to the correct column
-	baseDate, _ := time.Parse("2006-01-02", "2024-10-01")
-	targetDate, _ := time.Parse("2006-01-02", date)
-	diff := int(targetDate.Sub(baseDate).Hours() / 24)
-	return string(rune(67 + diff)) // 'C' is 67 in ASCII
 }
