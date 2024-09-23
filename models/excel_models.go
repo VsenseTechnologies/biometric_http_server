@@ -18,6 +18,9 @@ type AttendenceStudent struct{
 	StudentUSN string `json:"student_usn"`
 	StudentUnitID string `json:"student_unit_id"`
 	UnitID string `json:"unit_id"`
+	UserID string `json:"user_id"`
+	StartDate string `json:"start_date"`
+	EndDate string `json:"end_date"`
 }
 
 type Times struct{

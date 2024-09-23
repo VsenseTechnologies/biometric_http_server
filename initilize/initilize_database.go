@@ -45,17 +45,24 @@ func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
-	if _ , err := i.db.Exec("CREATE TABLE attendence(student_id VARCHAR(100), student_unit_id VARCHAR(100) , unit_id VARCHAR(50), date VARCHAR(20), login VARCHAR(20), logout VARCHAR(20), FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE , FOREIGN KEY (student_id) REFERENCES fingerprintdata(student_id) ON DELETE CASCADE)"); err != nil {
+	if _ , err := i.db.Exec("CREATE TABLE attendance(student_id VARCHAR(100), student_unit_id VARCHAR(100) , unit_id VARCHAR(50), date VARCHAR(20), login VARCHAR(20), logout VARCHAR(20), FOREIGN KEY (unit_id) REFERENCES biometric(unit_id) ON DELETE CASCADE , FOREIGN KEY (student_id) REFERENCES fingerprintdata(student_id) ON DELETE CASCADE)"); err != nil {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
+	if _ , err := i.db.Exec("CREATE TABLE times(user_id VARCHAR(200) , morning_start VARCHAR(20) , morning_end VARCHAR(20) , afternoon_start VARCHAR(20) , afternoon_end VARCHAR(20) , evening_start VARCHAR(20) , evening_end VARCHAR(20) , FOREIGN KEY (user_id) REFERENCES biometric(user_id) ON DELETE CASCADE)"); err != nil {
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
+		return 
+	}
 	if _ , err := i.rdb.Do(i.ctx , "JSON.SET" , "deletes" , "$" , "{}").Result(); err != nil {
-		w.WriteHeader(http.StatusBadRequest) 
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
 	if _ , err := i.rdb.Do(i.ctx , "JSON.SET" , "inserts" , "$" , "{}").Result(); err != nil {
-		w.WriteHeader(http.StatusBadRequest) 
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
 	w.WriteHeader(http.StatusOK)

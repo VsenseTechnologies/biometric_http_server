@@ -62,8 +62,8 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	file.SetCellValue("Sheet1", "B1", "USN")
 
 	// Set date headers for the attendance sheet starting from column "C"
-	startDate := "2024-10-01"
-	endDate := "2024-10-29"
+	startDate := details.StartDate
+	endDate := details.EndDate
 	err = setAttendanceDateHeaders(file, startDate, endDate)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	}
 
 	// Mark attendance and update Excel file
-	update, err := MarkAttendance(ar.db, file, students, startDate, endDate)
+	update, err := MarkAttendance(ar.db, file, students, startDate, endDate , details.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,10 +113,10 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 }
 
 // Fetch times from the 'times' table
-func FetchTimes(db *sql.DB) (models.Times, error) {
+func FetchTimes(db *sql.DB , userId string) (models.Times, error) {
 	var times models.Times
-	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times` 
-	err := db.QueryRow(query).Scan(&times.MorningStart, &times.MorningEnd, &times.AfternoonStart, &times.AfternoonEnd, &times.EveningStart, &times.EveningEnd)
+	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times WHERE user_id=$1` 
+	err := db.QueryRow(query,userId).Scan(&times.MorningStart, &times.MorningEnd, &times.AfternoonStart, &times.AfternoonEnd, &times.EveningStart, &times.EveningEnd)
 	if err != nil {
 		return times, err
 	}
@@ -125,11 +125,11 @@ func FetchTimes(db *sql.DB) (models.Times, error) {
 }
 
 // Mark attendance in the Excel file with the new logic
-func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStudent, startDate string, endDate string) (*excelize.File, error) {
+func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStudent, startDate string, endDate string, userId string) (*excelize.File, error) {
 	l := 2 // Starting row for attendance entries
 
 	// Fetch the times for attendance periods
-	times, err := FetchTimes(db)
+	times, err := FetchTimes(db , userId)
 	if err != nil {
 		return nil, err
 	}
