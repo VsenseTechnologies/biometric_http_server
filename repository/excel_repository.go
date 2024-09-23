@@ -100,6 +100,7 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 	style, err := file.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
 			Bold: true,
+			Size: 30,
 		},
 	})
 	if err != nil {
@@ -253,13 +254,6 @@ func columnIndexToLetter(index int) string {
 		index = index/26 - 1
 	}
 	return result
-}
-
-// Helper function to get the next day as a string in the format "YYYY-MM-DD"
-func nextDay(date string) string {
-	parsedDate, _ := time.Parse("2006-01-02", date)
-	nextDate := parsedDate.AddDate(0, 0, 1)
-	return nextDate.Format("2006-01-02")
 }
 
 func FetchStudents(db *sql.DB, unitId string) ([]models.AttendenceStudent, error) {
