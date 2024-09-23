@@ -85,7 +85,6 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	return update, nil
 }
 
-// Set the date headers in the first row starting from column "C"
 func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate string) error {
 	// Parse the start and end dates
 	start, err := time.Parse("2006-01-02", startDate)
@@ -97,6 +96,16 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 		return err
 	}
 
+	// Create a style for bold text
+	style, err := file.NewStyle(&excelize.Style{
+		Font: &excelize.Font{
+			Bold: true,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
 	// Iterate through each date between startDate and endDate
 	col := 0 // Starting from column 0, which will map to 'C'
 	for currentDate := start; !currentDate.After(end); currentDate = currentDate.AddDate(0, 0, 1) {
@@ -104,8 +113,11 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 
 		column := columnIndexToLetter(col + 2) // Offset by 2 because columns start at "C"
 		cell := column + "1"
+
+		// Set the date value and apply the bold style
 		file.SetCellValue("Sheet1", cell, day)
 		file.SetColWidth("Sheet1", column, column, 5) // Set column width to 5
+		file.SetCellStyle("Sheet1", cell, cell, style) // Apply bold style
 
 		col++
 	}
