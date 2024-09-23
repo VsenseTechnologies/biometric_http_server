@@ -47,7 +47,7 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 		Font: &excelize.Font{
 			Bold: true,
 			Size: 14,
-			Color: "#FFFFFFFF",
+			Color: "#FFFFFF",
 		},
 		Fill: excelize.Fill{
 			Type:    "pattern",
