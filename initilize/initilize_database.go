@@ -50,7 +50,7 @@ func(i *Init) InitilizeTables(w http.ResponseWriter , r *http.Request){
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return
 	}
-	if _ , err := i.db.Exec("CREATE TABLE times(user_id VARCHAR(200) , morning_start VARCHAR(20) , morning_end VARCHAR(20) , afternoon_start VARCHAR(20) , afternoon_end VARCHAR(20) , evening_start VARCHAR(20) , evening_end VARCHAR(20) , FOREIGN KEY (user_id) REFERENCES biometric(user_id) ON DELETE CASCADE)"); err != nil {
+	if _ , err := i.db.Exec("CREATE TABLE times(user_id VARCHAR(200) , morning_start VARCHAR(20) , morning_end VARCHAR(20) , afternoon_start VARCHAR(20) , afternoon_end VARCHAR(20) , evening_start VARCHAR(20) , evening_end VARCHAR(20) , FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE)"); err != nil {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(payload.SimpleFailedPayload{ErrorMessage: err.Error()})
 		return 
