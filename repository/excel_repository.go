@@ -76,7 +76,7 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 	}
 
 	// Mark attendance and update Excel file
-	update, err := MarkAttendance(ar.db, file, students, startDate, endDate , details.UserID)
+	update, err := MarkAttendance(ar.db, file, students, startDate, endDate, details.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,10 +113,10 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 }
 
 // Fetch times from the 'times' table
-func FetchTimes(db *sql.DB , userId string) (models.Times, error) {
+func FetchTimes(db *sql.DB, userId string) (models.Times, error) {
 	var times models.Times
-	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times WHERE user_id=$1` 
-	err := db.QueryRow(query,userId).Scan(&times.MorningStart, &times.MorningEnd, &times.AfternoonStart, &times.AfternoonEnd, &times.EveningStart, &times.EveningEnd)
+	query := `SELECT morning_start, morning_end, afternoon_start, afternoon_end, evening_start, evening_end FROM times WHERE user_id=$1`
+	err := db.QueryRow(query, userId).Scan(&times.MorningStart, &times.MorningEnd, &times.AfternoonStart, &times.AfternoonEnd, &times.EveningStart, &times.EveningEnd)
 	if err != nil {
 		return times, err
 	}
@@ -129,7 +129,7 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 	l := 2 // Starting row for attendance entries
 
 	// Fetch the times for attendance periods
-	times, err := FetchTimes(db , userId)
+	times, err := FetchTimes(db, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -159,15 +159,21 @@ func MarkAttendance(db *sql.DB, file *excelize.File, data []models.AttendenceStu
 		}
 
 		// Mark each day with the corresponding attendance status
-		currentDate := startDate
-		for currentDate != endDate {
-			column := dateToColumn(currentDate, startDate)
-			if status, exists := attendanceMap[currentDate]; exists {
+		// Mark each day with the corresponding attendance status
+		// Parse the startDate and endDate as time.Time
+		start, _ := time.Parse("2006-01-02", startDate)
+		end, _ := time.Parse("2006-01-02", endDate)
+
+		// Mark each day with the corresponding attendance status
+		currentDate := start
+		for !currentDate.After(end) { // Ensure it includes the end date
+			column := dateToColumn(currentDate.Format("2006-01-02"), startDate)
+			if status, exists := attendanceMap[currentDate.Format("2006-01-02")]; exists {
 				file.SetCellValue("Sheet1", column+strconv.Itoa(l), status)
 			} else {
 				file.SetCellValue("Sheet1", column+strconv.Itoa(l), "A") // Mark absent
 			}
-			currentDate = nextDay(currentDate)
+			currentDate = currentDate.AddDate(0, 0, 1) // Move to the next day
 		}
 
 		l++ // Move to the next student
@@ -179,7 +185,7 @@ func normalizeTime(t time.Time) time.Time {
 }
 
 // Determine attendance status based on login and logout times
-func determineAttendance(login, logout string, times models.Times ) string {
+func determineAttendance(login, logout string, times models.Times) string {
 	// Parse the times from the Times struct with full hour:minute:second format
 	morningEnd, _ := time.Parse("15:04:05", times.MorningEnd)
 	afternoonStart, _ := time.Parse("15:04:05", times.AfternoonStart)
@@ -219,8 +225,6 @@ func determineAttendance(login, logout string, times models.Times ) string {
 	return "NC" // Not Present or No Valid Attendance
 }
 
-
-
 // Helper function to map dates to Excel columns based on the startDate
 func dateToColumn(date string, startDate string) string {
 	baseDate, _ := time.Parse("2006-01-02", startDate)
@@ -245,7 +249,6 @@ func nextDay(date string) string {
 	nextDate := parsedDate.AddDate(0, 0, 1)
 	return nextDate.Format("2006-01-02")
 }
-
 
 func FetchStudents(db *sql.DB, unitId string) ([]models.AttendenceStudent, error) {
 	// Use parameterized query to prevent SQL injection
