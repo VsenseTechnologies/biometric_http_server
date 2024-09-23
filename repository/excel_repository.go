@@ -100,7 +100,7 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 	style, err := file.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
 			Bold: true,
-			Size: 30,
+			Size: 15,
 		},
 	})
 	if err != nil {
