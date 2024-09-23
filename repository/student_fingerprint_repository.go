@@ -122,7 +122,7 @@ func(sfr *StudentFingerprintRepo) FetchStudentLogHistory(reader *io.ReadCloser) 
 	}
 
 	// Executing the query to get data from database
-	res , err := sfr.db.Query("SELECT login , logout , date FROM attendence WHERE student_id=$1",student.StudentID)
+	res , err := sfr.db.Query("SELECT login , logout , date FROM attendance WHERE student_id=$1",student.StudentID)
 	if err != nil {
 		return nil,fmt.Errorf("unable to fetch loghistory")
 	}
