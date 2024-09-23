@@ -47,10 +47,11 @@ func (ar *AttendenceRepo) CreateAttendenceSheet(reader *io.ReadCloser) (*exceliz
 		Font: &excelize.Font{
 			Bold: true,
 			Size: 14,
+			Color: "#FFFFFFFF",
 		},
 		Fill: excelize.Fill{
 			Type:    "pattern",
-			Color:   []string{"#90EE90"}, // Light green background
+			Color:   []string{"#000000FF"}, // Light green background
 			Pattern: 1,                   // Solid pattern
 		},
 	})
@@ -106,10 +107,11 @@ func setAttendanceDateHeaders(file *excelize.File, startDate string, endDate str
 		Font: &excelize.Font{
 			Bold: true,
 			Size: 14,
+			Color: "#FFFFFFFF",
 		},
 		Fill: excelize.Fill{
 			Type:    "pattern",
-			Color:   []string{"#90EE90"}, // Light green background
+			Color:   []string{"#000000FF"}, // Light green background
 			Pattern: 1,                   // Solid pattern
 		},
 	})
