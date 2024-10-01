@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	_ "net/http/pprof"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -59,4 +60,5 @@ func main(){
 	port := os.Getenv("SERVER_PORT")
 	log.Println("Server has Started and is running at PORT ",port)
 	log.Fatal(http.ListenAndServe(port, router))
+	
 }

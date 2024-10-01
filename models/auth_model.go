@@ -3,8 +3,8 @@ package models
 import "io"
 
 type AuthDetails struct {
-	Name     string `json:"user_name"`
-	Password string `json:"password"`
+	Name     string `json:"user_name,omitempty"`
+	Password string `json:"password,omitempty"`
 }
 
 type AuthDetailsRepository interface {

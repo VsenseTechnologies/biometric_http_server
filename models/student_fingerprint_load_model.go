@@ -3,10 +3,10 @@ package models
 import "io"
 
 type StudentFingerprintData struct {
-	StudentID       string `json:"student_id"`
-	StudentUnitID   string `json:"student_unit_id"`
-	UnitID          string `json:"unit_id"`
-	FingerprintData string `json:"fingerprint"`
+	StudentID       string `json:"student_id,omitempty"`
+	StudentUnitID   string `json:"student_unit_id,omitempty"`
+	UnitID          string `json:"unit_id,omitempty"`
+	FingerprintData string `json:"fingerprint,omitempty"`
 }
 
 type StudentFingerprintDataRepository interface {
