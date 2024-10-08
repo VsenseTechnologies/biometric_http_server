@@ -3,35 +3,35 @@ package models
 import "io"
 
 type StudentFingerprintRegistrationModel struct {
-	StudentID       string `json:"student_id,omitempty"`
-	StudentUnitID   string `json:"student_unit_id,omitempty"`
-	StudentName     string `json:"student_name,omitempty"`
-	StudentUSN      string `json:"student_usn,omitempty"`
-	Department      string `json:"department,omitempty"`
-	UnitID          string `json:"unit_id,omitempty"`
-	FingerprintData string `json:"fingerprint_data,omitempty"`
+	StudentID       string `json:"student_id"`
+	StudentUnitID   string `json:"student_unit_id"`
+	StudentName     string `json:"student_name"`
+	StudentUSN      string `json:"student_usn"`
+	Department      string `json:"department"`
+	UnitID          string `json:"unit_id"`
+	FingerprintData string `json:"fingerprint_data"`
 }
 
 type StudentDetailsModel struct {
-	StudentID     string `json:"student_id,omitempty"`
-	StudentUnitID string `json:"student_unit_id,omitempty"`
-	StudentName   string `json:"student_name,omitempty"`
-	StudentUSN    string `json:"student_usn,omitempty"`
-	Department    string `json:"department,omitempty"`
+	StudentID     string `json:"student_id"`
+	StudentUnitID string `json:"student_unit_id"`
+	StudentName   string `json:"student_name"`
+	StudentUSN    string `json:"student_usn"`
+	Department    string `json:"department"`
 }
 
 type StudentLogHistoryModel struct {
-	Date       string `json:"date,omitempty"`
-	LoginTime  string `json:"login,omitempty"`
-	LogoutTime string `json:"logout,omitempty"`
+	Date       string `json:"date"`
+	LoginTime  string `json:"login"`
+	LogoutTime string `json:"logout"`
 }
 type StudentOperationModel struct {
-	StudentID     string `json:"student_id,omitempty"`
-	UnitID        string `json:"unit_id,omitempty"`
-	StudentUnitID string `json:"student_unit_id,omitempty"`
-	StudentName   string `json:"student_name,omitempty"`
-	StudentUSN    string `json:"student_usn,omitempty"`
-	Department    string `json:"department,omitempty"`
+	StudentID     string `json:"student_id"`
+	UnitID        string `json:"unit_id"`
+	StudentUnitID string `json:"student_unit_id"`
+	StudentName   string `json:"student_name"`
+	StudentUSN    string `json:"student_usn"`
+	Department    string `json:"department"`
 }
 
 type StudentFingerprintRepository interface {

@@ -3,9 +3,9 @@ package models
 import "io"
 
 type FingerprintMachinesModel struct {
-	UnitID string `json:"unit_id,omitempty"`
-	UserID string `json:"user_id,omitempty"`
-	Status bool   `json:"online,omitempty"`
+	UnitID string `json:"unit_id"`
+	UserID string `json:"user_id"`
+	Status bool   `json:"online"`
 }
 
 type FingerprintMachinesRepository interface {
