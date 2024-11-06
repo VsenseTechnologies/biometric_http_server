@@ -55,6 +55,7 @@ func main(){
 	routers.AdminRouters(db, mut, router , rdb , ctx)
 	routers.UserRoutes(db , mut , router , rdb , ctx)
 	routers.FingerprintMachineRouters(db , mut , router , rdb , &ctx)
+	routers.TimeRouters(db , mut , router)
 	
 	
 	//Starting The Server

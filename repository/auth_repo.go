@@ -62,6 +62,9 @@ func(a *AuthDetailsRepo) Register(reader *io.ReadCloser , urlPath string) (strin
 	if _ , err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", newUID , newUser.Name , hashpass); err != nil {
 		return "",fmt.Errorf("unable to create user")
 	}
+	if _  , err := a.db.Exec("INSERT INTO times(user_id,morning_start , morning_end , afternoon_start , afternoon_end , evening_start , evening_end) VALUES($1,$2,$2,$2,$2,$2,$2)",newUID , "00:00:00"); err != nil {
+		return "",err
+	}
 
 	// Returning Generated Token to User
 	return tokenString,nil
