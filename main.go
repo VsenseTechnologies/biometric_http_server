@@ -33,7 +33,7 @@ func main(){
 	}
 	defer db.Close()
 
-	opt , err := redis.ParseURL("redis://default:dv5AD7fFG1jLNacDyJVYSjAfwlgNQwlX@redis-16241.c305.ap-south-1-1.ec2.redns.redis-cloud.com:16241")
+	opt , err := redis.ParseURL(os.Getenv("REDIS_URL"))
 	if err != nil {
 		log.Println(err.Error())
 	}
