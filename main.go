@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"sync"
-	_ "net/http/pprof"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -41,8 +40,6 @@ func main(){
 	rdb := redis.NewClient(opt)
 
 	ctx := context.Background()
-	
-	//Declaring Router and Mutex
 	router  := mux.NewRouter()
 	mut := &sync.Mutex{}
 	

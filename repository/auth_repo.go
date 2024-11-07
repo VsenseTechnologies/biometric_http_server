@@ -57,9 +57,26 @@ func (a *AuthDetailsRepo) Register(reader *io.ReadCloser, urlPath string) (strin
 		return "", fmt.Errorf("failed to create auth token")
 	}
 
+
+	tx , err := a.db.Begin()
+	if err != nil {
+		return "" , err
+	}
 	// Entering User Details on to Database
-	if _, err := a.db.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", newUID, newUser.Name, hashpass); err != nil {
+	if _, err := tx.Exec("INSERT INTO "+urlPath+"(user_id , user_name , password) VALUES($1 , $2 , $3)", newUID, newUser.Name, hashpass); err != nil {
+		if rErr := tx.Rollback(); rErr != nil {
+			return "",fmt.Errorf("unable to create user")
+		}
 		return "", fmt.Errorf("unable to create user")
+	}
+
+	if urlPath == "users" {
+		if _  , err := tx.Exec("INSERT INTO times(user_id,morning_start , morning_end , afternoon_start , afternoon_end , evening_start , evening_end) VALUES($1,$2,$2,$2,$2,$2,$2)",newUID , "00:00:00"); err != nil {
+			if rErr := tx.Rollback(); rErr != nil {
+				return "",fmt.Errorf("unable to create user")
+			}
+			return "",fmt.Errorf("unable to create user")
+		}
 	}
 
 	// Returning Generated Token to User
