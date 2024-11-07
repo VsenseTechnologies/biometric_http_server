@@ -16,6 +16,7 @@ func RouteMiddleware(authHandler http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "https://biometric.adminpanel.vsensetech.in") // Set to your frontend's origin
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		// w.Header().Set("Access-Control-Allow-Methods", "POSR")
 		var url = strings.Split(r.URL.Path, "/")[1]
 		if url == "admin" || url == "users" {
 			authHandler.ServeHTTP(w, r)
