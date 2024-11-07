@@ -60,10 +60,9 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 	}
 	if urlPath == "admin" {
 		cookie := http.Cookie{
-			Name:        "token",
-			Value:       token,
-			Expires:     time.Now().Add(24 * time.Hour),
-			HttpOnly:    true,
+            Name: "id",
+            Value: "5",
+            MaxAge: 60,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
