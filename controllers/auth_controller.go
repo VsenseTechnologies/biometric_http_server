@@ -63,12 +63,7 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Name:        "token",
 			Value:       token,
 			Expires:     time.Now().Add(24 * time.Hour),
-			Secure:      true,
-			Domain:      ".biometric.adminpanel.vsensetech.in",
-			SameSite:    http.SameSiteNoneMode,
-			Path:        "/",
 			HttpOnly:    true,
-			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
