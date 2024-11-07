@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -34,11 +33,11 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Name:        "token",
 			Value:       token,
 			Secure:      true,
-			Domain:      ".biometric.adminpanel.vsensetech.in",
+			// Domain:      ".vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
 			HttpOnly:    true,
-			Expires:     time.Now().Add(24 * time.Hour),
+			Expires:     time.Now().Add(24 * 365 * time.Hour),
 			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
@@ -60,16 +59,18 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 		return
 	}
 	if urlPath == "admin" {
-		c := &http.Cookie{
-			Name:		"token",
-			Value:		"bar",
-			Expires:	time.Now().Add(1 * time.Hour),
-			Domain:		"biometric.adminpanel.vsensetech.in",	// edit (or omit)
-			Path:		"/",		// ^ ditto
-			HttpOnly:	true,
+		cookie := http.Cookie{
+			Name:        "token",
+			Value:       token,
+			Expires:     time.Now().Add(24 * 365 * time.Hour),
+			Secure:      true,
+			// Domain:      ".vsensetech.in",
+			SameSite:    http.SameSiteNoneMode,
+			Path:        "/",
+			HttpOnly:    true,
+			Partitioned: true,
 		}
-		fmt.Fprintln(w, "Hello world")
-		http.SetCookie(w, c)
+		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
 		return
