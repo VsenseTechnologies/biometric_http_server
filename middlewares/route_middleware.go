@@ -13,7 +13,7 @@ import (
 func RouteMiddleware(authHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "https://biometric.vsensetechnologies.com") // Set to your frontend's origin
+		w.Header().Set("Access-Control-Allow-Origin", "https://biometric.adminpanel.vsensetech.in") // Set to your frontend's origin
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		var url = strings.Split(r.URL.Path, "/")[1]
@@ -37,7 +37,7 @@ func JwtMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		if(path[1] == "admin"){
+		if path[1] == "admin" {
 			// Get JWT token from cookies
 			cookie, err := r.Cookie("token")
 			if err != nil {
@@ -50,22 +50,22 @@ func JwtMiddleware(next http.Handler) http.Handler {
 
 			// Parse and validate the token
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			// Check the signing method
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return jwtSecretKey, nil
+				// Check the signing method
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				}
+				return jwtSecretKey, nil
 			})
 
 			if err != nil || !token.Valid {
-			http.Error(w, "Unauthorized - invalid token", http.StatusUnauthorized)
-			return
+				http.Error(w, "Unauthorized - invalid token", http.StatusUnauthorized)
+				return
 			}
 			// If token is valid, proceed to the next handler
 			next.ServeHTTP(w, r)
-		}else{
+		} else {
 			next.ServeHTTP(w, r)
 		}
-		
+
 	})
 }
