@@ -36,11 +36,11 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Value:       token,
 			Expires:     time.Now().Add(24 * 365 * time.Hour), // Expires in 1 year
 			Secure:      true,  // Set to true only if you're using HTTPS
-			SameSite:    http.SameSiteStrictMode, // SameSite=None should be used if cross-site
+			SameSite:    http.SameSiteNoneMode, // SameSite=None should be used if cross-site
 			Path:        "/",
 			HttpOnly:    true,
 			// If needed, partition can be removed for compatibility unless specific use
-			// Partitioned: true, 
+			Partitioned: true, 
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -68,11 +68,11 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Value:       token,
 			Expires:     time.Now().Add(24 * 365 * time.Hour), // Expires in 1 year
 			Secure:      true,  // Set to true only if you're using HTTPS
-			SameSite:    http.SameSiteStrictMode, // SameSite=None should be used if cross-site
+			SameSite:    http.SameSiteNoneMode, // SameSite=None should be used if cross-site
 			Path:        "/",
 			HttpOnly:    true,
 			// If needed, partition can be removed for compatibility unless specific use
-			// Partitioned: true, 
+			Partitioned: true, 
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
