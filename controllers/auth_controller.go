@@ -32,11 +32,11 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 		cookie := http.Cookie{
 			Name:        "token",
 			Value:       token,
+			Expires:     time.Now().Add(24 * 365 * time.Hour),
 			Secure:      true,
-			Domain:      ".vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
-			Expires:     time.Now().Add(24 * 365 * time.Hour),
+			HttpOnly:    true,
 			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
@@ -63,9 +63,9 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Value:       token,
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
 			Secure:      true,
-			Domain:      ".vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
+			HttpOnly:    true,
 			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
