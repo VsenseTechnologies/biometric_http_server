@@ -33,7 +33,7 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Name:        "token",
 			Value:       token,
 			Secure:      true,
-			Domain:      "biometricb1.vsensetech.in",
+			Domain:      ".vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
@@ -62,7 +62,7 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Value:       token,
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
 			Secure:      true,
-			Domain:      "biometricb1.vsensetech.in",
+			Domain:      ".vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
 		}
