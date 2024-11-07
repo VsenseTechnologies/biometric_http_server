@@ -37,6 +37,7 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
+			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -65,6 +66,7 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Domain:      ".vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
+			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
