@@ -59,12 +59,16 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 		return
 	}
 	if urlPath == "admin" {
-		cookie := http.Cookie{
-            Name: "id",
-            Value: "5",
-            MaxAge: 60,
+		cookie := &http.Cookie{
+			Name:     "exampleCookie",
+			Value:    "Hello world!",
+			Path:     "/",
+			MaxAge:   3600,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
 		}
-		http.SetCookie(w, &cookie)
+		http.SetCookie(w, cookie)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(payload.SimpleSuccessPayload{Message: "Success"})
 		return
