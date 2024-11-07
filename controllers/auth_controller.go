@@ -38,7 +38,6 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Path:        "/",
 			HttpOnly:    true,
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
-			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
@@ -68,7 +67,6 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
 			HttpOnly:    true,
-			Partitioned: true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
