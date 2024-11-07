@@ -64,7 +64,7 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Name:		"token",
 			Value:		"bar",
 			Expires:	time.Now().Add(1 * time.Hour),
-			Domain:		".godev.local",	// edit (or omit)
+			Domain:		"biometric.adminpanel.vsensetech.in",	// edit (or omit)
 			Path:		"/",		// ^ ditto
 			HttpOnly:	true,
 		}
