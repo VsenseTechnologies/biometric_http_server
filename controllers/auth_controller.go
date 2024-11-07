@@ -36,7 +36,6 @@ func (ac *AuthController) RegisterController(w http.ResponseWriter, r *http.Requ
 			Domain:      "biometricb1.vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
-			HttpOnly:    true,
 			Expires:     time.Now().Add(24 * 365 * time.Hour),
 		}
 		http.SetCookie(w, &cookie)
@@ -66,7 +65,6 @@ func (ac *AuthController) LoginController(w http.ResponseWriter, r *http.Request
 			Domain:      "biometricb1.vsensetech.in",
 			SameSite:    http.SameSiteNoneMode,
 			Path:        "/",
-			HttpOnly:    true,
 		}
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
