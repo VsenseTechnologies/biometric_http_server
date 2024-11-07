@@ -77,7 +77,7 @@ func (umr *FingerprintMachineRepo) DeleteMachine(reader *io.ReadCloser) error {
 		return err
 	}
 
-	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "deletes" , "$."+machine.UnitID).Result(); err != nil {
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.DEL" , "inserts" , "$."+machine.UnitID).Result(); err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func (umr *FingerprintMachineRepo) AddMachine(reader *io.ReadCloser) error {
 		return err
 	}
 
-	if _ , err := umr.rdb.Do(umr.ctx,"JSON.SET" , "inserts" , "$."+newMachine.UnitID , "[]").Result(); err != nil {
+	if _ , err := umr.rdb.Do(umr.ctx,"JSON.SET" , "deletes" , "$."+newMachine.UnitID , "[]").Result(); err != nil {
 		return err
 	}
 
