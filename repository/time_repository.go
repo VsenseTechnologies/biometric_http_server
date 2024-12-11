@@ -4,26 +4,21 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
-	"sync"
 
 	"vsensetech.in/go_fingerprint_server/models"
 )
 
 type timeRepository struct {
 	db *sql.DB
-	mut *sync.Mutex
 }
 
-func NewTimeRepository(db *sql.DB , mut *sync.Mutex) *timeRepository{
+func NewTimeRepository(db *sql.DB) *timeRepository{
 	return &timeRepository{
 		db,
-		mut,
 	}
 }
 
 func(tr *timeRepository) SetTime(reader *io.ReadCloser) error {
-	tr.mut.Lock()
-	defer tr.mut.Unlock()
 	var newTime models.TimeModel
 
 	if err := json.NewDecoder(*reader).Decode(&newTime); err != nil {

@@ -2,7 +2,6 @@ package routers
 
 import (
 	"database/sql"
-	"sync"
 
 	"github.com/gorilla/mux"
 	"vsensetech.in/go_fingerprint_server/controllers"
@@ -10,8 +9,8 @@ import (
 )
 
 
-func AuthRouter(db *sql.DB , mut *sync.Mutex , router *mux.Router){
-	repo := repository.NewAuth(db, mut)
+func AuthRouter(db *sql.DB , router *mux.Router){
+	repo := repository.NewAuth(db)
 	cont := controllers.NewAuthController(repo)
 	
 	router.HandleFunc("/{id}/register", cont.RegisterController).Methods("POST")

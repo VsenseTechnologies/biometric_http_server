@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/xuri/excelize/v2"
@@ -15,13 +14,11 @@ import (
 
 type AttendenceRepo struct {
 	db  *sql.DB
-	mut *sync.Mutex
 }
 
-func NewAttendenceRepo(db *sql.DB, mut *sync.Mutex) *AttendenceRepo {
+func NewAttendenceRepo(db *sql.DB) *AttendenceRepo {
 	return &AttendenceRepo{
 		db,
-		mut,
 	}
 }
 

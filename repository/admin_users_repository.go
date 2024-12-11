@@ -3,27 +3,21 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"sync"
 
 	"vsensetech.in/go_fingerprint_server/models"
 )
 
 type UsersRepo struct{
 	db *sql.DB
-	mut *sync.Mutex
 }
 
-func NewUsersRepo(db *sql.DB , mut *sync.Mutex) *UsersRepo{
+func NewUsersRepo(db *sql.DB) *UsersRepo{
 	return &UsersRepo{
 		db,
-		mut,
 	}
 }
 
 func(ur *UsersRepo) FetchAllUsers() ([]models.UsersModel , error) {
-	// Locking The Process to Avoid Crashes
-	ur.mut.Lock()
-	defer ur.mut.Unlock()
 
 	// Getting All The Users Data From Database
 	res , err := ur.db.Query("SELECT user_name , user_id FROM users")

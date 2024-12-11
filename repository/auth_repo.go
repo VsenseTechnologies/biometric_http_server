@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -16,20 +15,15 @@ import (
 
 type AuthDetailsRepo struct {
 	db  *sql.DB
-	mut *sync.Mutex
 }
 
-func NewAuth(db *sql.DB, mut *sync.Mutex) *AuthDetailsRepo {
+func NewAuth(db *sql.DB) *AuthDetailsRepo {
 	return &AuthDetailsRepo{
 		db,
-		mut,
 	}
 }
 
 func (a *AuthDetailsRepo) Register(reader *io.ReadCloser, urlPath string) (string, error) {
-	// Locking The Process To Avoid Crashes
-	a.mut.Lock()
-	defer a.mut.Unlock()
 	// Creating New User Model to Store json to go Objects
 	var newUser models.AuthDetails
 
@@ -74,9 +68,6 @@ func (a *AuthDetailsRepo) Register(reader *io.ReadCloser, urlPath string) (strin
 }
 
 func (a *AuthDetailsRepo) Login(reader *io.ReadCloser, urlPath string) (string, error) {
-	// Locking The Process To Avoid Crashes
-	a.mut.Lock()
-	defer a.mut.Unlock()
 
 	// The reqData stores The Data Sent By User and The dbData Stores The Data Fetched From Database With Respect To User Data
 	var reqData models.AuthDetails

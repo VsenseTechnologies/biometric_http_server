@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/smtp"
 	"os"
-	"sync"
 
 	"golang.org/x/crypto/bcrypt"
 	"vsensetech.in/go_fingerprint_server/models"
@@ -15,21 +14,16 @@ import (
 
 type ManageUserRepo struct{
 	db *sql.DB
-	mut *sync.Mutex
 }
 
-func NewManageUserRepo(db *sql.DB , mut *sync.Mutex) *ManageUserRepo {
+func NewManageUserRepo(db *sql.DB) *ManageUserRepo {
 	return &ManageUserRepo{
 		db,
-		mut,
 	}
 }
 
 
 func (mur *ManageUserRepo) GiveUserAccess(reader *io.ReadCloser) error {
-	// Locking The Process 
-	mur.mut.Lock()
-	defer mur.mut.Unlock()
 	var newUser models.ManageUsers
 	var password string
 	if err := json.NewDecoder(*reader).Decode(&newUser); err != nil {
