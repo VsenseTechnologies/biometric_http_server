@@ -11,7 +11,6 @@ import (
 	"vsensetech.in/go_fingerprint_server/middlewares"
 	"vsensetech.in/go_fingerprint_server/routers"
 )
-
 func main() {
 	//Loading The Environment Variables
 	err := godotenv.Load()
@@ -32,7 +31,7 @@ func main() {
 
 	//Routes
 	router.Use(middlewares.RouteMiddleware)
-	router.Use(middlewares.JwtMiddleware)
+	// router.Use(middlewares.JwtMiddleware)
 	routers.AuthRouter(db, router)
 	routers.InitRouter(db, router)
 	routers.AdminRouters(db, router)
